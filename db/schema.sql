@@ -97,3 +97,32 @@ create table if not exists agent_tokens (
 );
 
 create index if not exists agent_tokens_user on agent_tokens (user_id);
+
+-- Printed editions: a month of a reader's texts, set as a paperback and posted by Lulu.
+-- The id is random and unguessable: it is also how a reader who is not signed in finds their order.
+create table if not exists editions (
+  id text primary key,
+  user_id text,                 -- the Clerk id, when the reader was signed in
+  month text not null,          -- "2026-10"
+  name text not null default '',
+  input jsonb not null,         -- what goes to press: the texts with their marks, and the cover's words
+  art text,                     -- the painted cover, a JPEG in base64
+  status text not null default 'draft',
+  test boolean not null default false,
+  attempts integer not null default 0,
+  pages integer,
+  price_cents integer not null,
+  email text,
+  ship_to jsonb,
+  stripe_session text,
+  payment_intent text,
+  lulu_job text,
+  files jsonb,                  -- the interior and cover PDFs, as the printer was sent them
+  tracking jsonb,
+  arrival jsonb,
+  error text,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create index if not exists editions_user on editions (user_id, created_at);

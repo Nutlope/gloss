@@ -19,6 +19,8 @@ import { AddButton, AddPanel, type AddTab } from "./AddPanel";
 import { Arrivals, type Wave } from "./Arrivals";
 import { Glyph } from "./Book";
 import { BookOpen, type Origin } from "./BookOpen";
+import { Edition } from "./Edition";
+import { EDITIONS_ON, EditionCard, editionMonth } from "./EditionCard";
 import { Shelf } from "./Shelf";
 import { Starter } from "./Starter";
 import { TopicGrid, TopicPage } from "./Topics";
@@ -56,6 +58,7 @@ export function Library() {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<{ id: string; origin: Origin } | null>(null);
   const [adding, setAdding] = useState<AddTab | null>(null);
+  const [edition, setEdition] = useState<{ month: string; order?: string; session?: string | null } | null>(null);
   const [fresh, setFresh] = useState<Set<string>>(() => new Set());
   const [leaving, setLeaving] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -79,6 +82,18 @@ export function Library() {
     waveTimer.current = setTimeout(() => setWave(null), 240);
   }, []);
   useEffect(() => () => clearTimeout(waveTimer.current), []);
+
+  // Back from checkout (?edition=ed_...&session=...), or sent straight to this month's edition (?edition=open).
+  useEffect(() => {
+    if (!EDITIONS_ON || !hydrated) return;
+    const q = new URLSearchParams(window.location.search);
+    const e = q.get("edition");
+    if (!e) return;
+    const month = editionMonth(useStore.getState().library);
+    if (e.startsWith("ed_") && !q.get("canceled")) setEdition({ month, order: e, session: q.get("session") });
+    else setEdition({ month });
+    window.history.replaceState(null, "", "/library");
+  }, [hydrated]);
 
   // Signed in, the shelf is checked every few seconds while it's open, so an agent's saves arrive as you look.
   useEffect(() => watchShelf(), []);
@@ -213,7 +228,7 @@ export function Library() {
   // "/" to search, wherever you are; Esc steps back out of a topic.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (open || adding || e.metaKey || e.ctrlKey || (e.target as HTMLElement).closest?.("input, textarea, select, [contenteditable]")) return;
+      if (open || adding || edition || e.metaKey || e.ctrlKey || (e.target as HTMLElement).closest?.("input, textarea, select, [contenteditable]")) return;
       if (e.key === "/") {
         e.preventDefault();
         searchRef.current?.focus();
@@ -221,7 +236,7 @@ export function Library() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, adding, topic, go]);
+  }, [open, adding, edition, topic, go]);
 
   const read = useCallback(
     (b: Book) => {
@@ -304,7 +319,10 @@ export function Library() {
               </p>
             )}
             </div>
-            <AddButton onClick={() => setAdding("agent")} />
+            <div className="lib-hero-actions">
+              {EDITIONS_ON && hydrated && <EditionCard onOpen={(month, order) => setEdition({ month, order })} />}
+              <AddButton onClick={() => setAdding("agent")} />
+            </div>
             </div>
             {fromAgent.length > 0 && (
               <button type="button" className="lib-news" onClick={() => (setTag("agent"), setOnly(null), go({ view: "shelf" }))}>
@@ -434,6 +452,7 @@ export function Library() {
         />
       )}
       {adding && <AddPanel tab={adding} onTab={setAdding} onClose={() => setAdding(null)} signedIn={Boolean(isSignedIn)} />}
+      {edition && <Edition month={edition.month} orderId={edition.order} session={edition.session} owner={first ?? ""} onClose={() => setEdition(null)} />}
     </div>
   );
 }

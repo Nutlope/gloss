@@ -69,6 +69,11 @@ export async function checkFreeUser(userId: string, burst = 60): Promise<FreeSta
   return check({ subject: `free:user:${userId}`, limit: FREE_USD.user, signedIn: true }, burst);
 }
 
+/** A budget of its own on the shared key, in dollars a day: a printed edition's podcast, say. */
+export async function checkBudget(subject: string, usd: number, burst = 4): Promise<FreeState> {
+  return check({ subject, limit: usd, signedIn: true }, burst);
+}
+
 async function check(w: { subject: string; limit: number; signedIn: boolean }, burst: number): Promise<FreeState> {
   // A burst guard, so a script cannot fire many requests before their costs land.
   if (!allow(`burst:${w.subject}`, burst, 60_000)) return { ok: false, left: 1, signedIn: w.signedIn, subject: w.subject, reason: "burst" };

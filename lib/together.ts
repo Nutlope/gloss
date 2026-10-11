@@ -166,6 +166,7 @@ export async function completeJSON<T>(req: {
   model: ModelKey;
   apiKey?: string;
   maxTokens?: number;
+  temperature?: number;
   signal?: AbortSignal;
 }): Promise<{ ok: true; data: T; usage: Usage } | { ok: false; error: string }> {
   const model: ModelEntry = MODELS[req.model];
@@ -180,7 +181,7 @@ export async function completeJSON<T>(req: {
       headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}`, "User-Agent": APP_UA },
       body: JSON.stringify({
         model: model.id,
-        temperature: 0.3,
+        temperature: req.temperature ?? 0.3,
         max_tokens: req.maxTokens ?? 1400,
         chat_template_kwargs: { enable_thinking: false },
         response_format: { type: "json_object" },

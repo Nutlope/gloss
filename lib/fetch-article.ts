@@ -35,7 +35,8 @@ function isPrivate(ip: string): boolean {
   );
 }
 
-async function safeUrl(raw: string): Promise<URL | string> {
+/** A link the server may fetch: http or https, and never a private, loopback or link-local address. A string says why not. */
+export async function safeUrl(raw: string): Promise<URL | string> {
   let url: URL;
   try {
     url = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);

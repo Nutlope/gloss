@@ -134,3 +134,97 @@ export async function shelveForUser(userId: string, item: { id: string }, doc: u
     [userId, item.id, JSON.stringify(item), JSON.stringify(doc)]
   );
 }
+
+/* ---------- printed editions ---------- */
+
+export type EditionRow = {
+  id: string;
+  user_id: string | null;
+  month: string;
+  name: string;
+  input: unknown;
+  art: string | null;
+  status: string;
+  test: boolean;
+  attempts: number;
+  pages: number | null;
+  price_cents: number;
+  email: string | null;
+  ship_to: unknown;
+  stripe_session: string | null;
+  payment_intent: string | null;
+  lulu_job: string | null;
+  files: unknown;
+  tracking: unknown;
+  arrival: unknown;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+/** Everything but the texts and the painting, for the reader's list of orders. */
+const SUMMARY = "id, user_id, month, name, status, test, attempts, pages, price_cents, email, stripe_session, lulu_job, files, tracking, arrival, error, created_at, updated_at, jsonb_array_length(input->'texts') as texts";
+
+export async function createEdition(e: { id: string; userId: string | null; month: string; name: string; input: unknown; art: string | null; priceCents: number; test: boolean; email: string | null }): Promise<void> {
+  await db().query(
+    "insert into editions (id, user_id, month, name, input, art, price_cents, test, email) values ($1, $2, $3, $4, $5, $6, $7, $8, $9)",
+    [e.id, e.userId, e.month, e.name, JSON.stringify(e.input), e.art, e.priceCents, e.test, e.email]
+  );
+}
+
+/** One edition, with what goes to press. */
+export async function editionFor(id: string): Promise<EditionRow | null> {
+  const rows = await db().query("select * from editions where id = $1", [id]);
+  return (rows[0] as EditionRow | undefined) ?? null;
+}
+
+export async function editionSummaries(where: { ids?: string[]; userId?: string }): Promise<(EditionRow & { texts: number })[]> {
+  const rows = where.userId
+    ? await db().query(`select ${SUMMARY} from editions where user_id = $1 or id = any($2::text[]) order by created_at desc limit 40`, [where.userId, where.ids ?? []])
+    : await db().query(`select ${SUMMARY} from editions where id = any($1::text[]) order by created_at desc limit 40`, [where.ids ?? []]);
+  return rows as (EditionRow & { texts: number })[];
+}
+
+const PATCHABLE = ["status", "attempts", "pages", "email", "ship_to", "stripe_session", "payment_intent", "lulu_job", "files", "tracking", "arrival", "error"] as const;
+type Patch = Partial<Record<(typeof PATCHABLE)[number], unknown>>;
+
+/** Change an edition. Only the named columns can be set; objects are stored as JSON. */
+export async function patchEdition(id: string, patch: Patch): Promise<void> {
+  const keys = PATCHABLE.filter((k) => k in patch);
+  if (!keys.length) return;
+  const sets = keys.map((k, i) => `${k} = $${i + 2}`).join(", ");
+  const values = keys.map((k) => {
+    const v = patch[k];
+    return v !== null && typeof v === "object" ? JSON.stringify(v) : v;
+  });
+  await db().query(`update editions set ${sets}, updated_at = now() where id = $1`, [id, ...values]);
+}
+
+/**
+ * Move an edition on from one status to the next, only if it is still where
+ * the caller thinks: when two requests race for the same order, one wins.
+ * `stale` also claims a press that has said nothing for ten minutes: it died.
+ * A claim counts an attempt, and `run` names the attempt a later step belongs
+ * to, so a press that was given up on can never overwrite the one after it.
+ */
+export async function moveEdition(id: string, from: string[], to: string, patch: Patch = {}, opts: { stale?: boolean; claim?: boolean; run?: number } = {}): Promise<EditionRow | null> {
+  const keys = PATCHABLE.filter((k) => k in patch && k !== "status" && k !== "attempts");
+  const sets = keys.map((k, i) => `, ${k} = $${i + 6}`).join("");
+  const values = keys.map((k) => {
+    const v = patch[k];
+    return v !== null && typeof v === "object" ? JSON.stringify(v) : v;
+  });
+  const rows = await db().query(
+    `update editions set status = $2, updated_at = now()${opts.claim ? ", attempts = attempts + 1" : ""}${sets}
+     where id = $1 and (status = any($3::text[]) or ($4 and status = 'setting' and updated_at < now() - interval '10 minutes'))
+       and ($5::int is null or attempts = $5::int)
+     returning *`,
+    [id, to, from, Boolean(opts.stale), opts.run ?? null, ...values]
+  );
+  return (rows[0] as EditionRow | undefined) ?? null;
+}
+
+export async function editionByJob(job: string): Promise<EditionRow | null> {
+  const rows = await db().query("select * from editions where lulu_job = $1", [job]);
+  return (rows[0] as EditionRow | undefined) ?? null;
+}
