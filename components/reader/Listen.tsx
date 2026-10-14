@@ -90,7 +90,7 @@ function clip(i: number): Promise<string> {
       if (!r.ok) {
         const j = (await r.json().catch(() => ({}))) as { error?: string; code?: string };
         if (j.code === "need_key") useListen.setState({ needKey: true });
-        throw new Error(j.error ?? "The voice did not answer.");
+        throw new Error(j.error ?? "ئاۋاز جاۋاب بەرمىدى.");
       }
       const url = URL.createObjectURL(await r.blob());
       urls.set(i, url);
@@ -123,7 +123,7 @@ async function playAt(i: number, s: number) {
   try {
     url = await clip(i);
   } catch (e) {
-    if (s === session) useListen.setState({ status: "error", error: e instanceof Error ? e.message : "The voice did not answer." });
+    if (s === session) useListen.setState({ status: "error", error: e instanceof Error ? e.message : "ئاۋاز جاۋاب بەرمىدى." });
     return;
   }
   if (s !== session || !audio) return;
@@ -144,7 +144,7 @@ export function startListening(ix: DocIndex, fromBlock: string | null) {
   stopListening();
   // Reading aloud always uses the reader's own key: say so before anything is fetched.
   if (!readApiKey()) {
-    useListen.setState({ status: "error", needKey: true, error: "Reading aloud uses your own Together key." });
+    useListen.setState({ status: "error", needKey: true, error: "ئۈنلۈك ئوقۇش ئۆزىڭىزنىڭ Together ئاچقۇچىنى ئىشلىتىدۇ." });
     return;
   }
   const blocks = ix.article.blocks;
@@ -233,9 +233,9 @@ export function ListenButton({ from }: { from: () => string | null }) {
     <button
       type="button"
       className={`${barBtn} ${active ? "bg-sunk text-ink" : ""}`}
-      aria-label={active ? "Stop reading aloud" : "Read aloud from here"}
+      aria-label={active ? "ئۈنلۈك ئوقۇشنى توختىتىش" : "بۇ يەردىن ئۈنلۈك ئوقۇش"}
       aria-pressed={active}
-      data-tip={active ? "Stop reading aloud" : "Read aloud from here"}
+      data-tip={active ? "ئۈنلۈك ئوقۇشنى توختىتىش" : "بۇ يەردىن ئۈنلۈك ئوقۇش"}
       onClick={() => {
         if (active) return stopListening();
         // The paragraph cursor when it is on screen, otherwise the first paragraph in view.
@@ -283,7 +283,7 @@ export function ListenBar() {
   return (
     <div
       role="region"
-      aria-label="Reading aloud"
+      aria-label="ئۈنلۈك ئوقۇۋاتىدۇ"
       className="fixed bottom-[calc(env(safe-area-inset-bottom)+80px)] left-1/2 sm:bottom-[calc(env(safe-area-inset-bottom)+90px)] z-[46] flex -translate-x-1/2 items-center gap-1 rounded-full bg-lens p-1 text-lens-fg shadow-pop ring-1 ring-black/5"
       style={{ animation: "rise 0.35s var(--ease-out) both" }}
     >
@@ -291,7 +291,7 @@ export function ListenBar() {
         <button
           type="button"
           onClick={toggleListening}
-          aria-label={status === "playing" ? "Pause" : status === "error" ? "Try again" : "Play"}
+          aria-label={status === "playing" ? "ۋاقىتلىق توختىتىش" : status === "error" ? "قايتا سىناش" : "قويۇش"}
           className="grid size-9 place-items-center rounded-full bg-[var(--rubric)] text-white transition-transform active:scale-90"
         >
           {status === "loading" ? (
@@ -305,7 +305,7 @@ export function ListenBar() {
       )}
       {status === "error" ? (
         <>
-          <span className={`max-w-[min(360px,60vw)] truncate px-2 text-[13px] ${needKey ? "pl-3.5" : ""}`} title={error}>
+          <span className={`max-w-[min(360px,60vw)] truncate px-2 text-[13px] ${needKey ? "ps-3.5" : ""}`} title={error}>
             {error}
           </span>
           {needKey && (
@@ -317,7 +317,7 @@ export function ListenBar() {
               }}
               className="h-9 shrink-0 rounded-full px-3 text-[13px] font-medium underline decoration-lens-mute underline-offset-4 transition-colors hover:bg-lens-hover"
             >
-              Add key
+              ئاچقۇچ قوشۇش
             </button>
           )}
         </>
@@ -326,22 +326,22 @@ export function ListenBar() {
           type="button"
           onClick={() => block && jumpToBlock(block, { flash: false })}
           className="h-9 rounded-full px-2.5 text-[13px] tabular-nums text-lens-fg/85 transition-colors hover:bg-lens-hover hover:text-lens-fg"
-          aria-label={n ? `Reading paragraph ${n}. Show it.` : "Show where it is reading"}
+          aria-label={n ? `${n}-ئابزاسنى ئوقۇۋاتىدۇ. كۆرسىتىش.` : "ئوقۇۋاتقان يېرىنى كۆرسىتىش"}
         >
-          {n ? `Reading ¶${n}` : "Reading"}
+          {n ? `¶${n} نى ئوقۇۋاتىدۇ` : "ئوقۇۋاتىدۇ"}
         </button>
       )}
       {!needKey && (
         <button
           type="button"
           onClick={cycleRate}
-          aria-label={`Speed ${rate} times. Change speed.`}
+          aria-label={`سۈرئەت ${rate} ھەسسە. سۈرئەتنى ئۆزگەرتىش.`}
           className="h-9 min-w-[48px] rounded-full px-2.5 text-[13px] font-medium tabular-nums transition-colors hover:bg-lens-hover"
         >
           {`${rate}×`}
         </button>
       )}
-      <button type="button" onClick={stopListening} aria-label="Stop reading aloud" className="grid size-9 place-items-center rounded-full text-lens-fg/80 transition-colors hover:bg-lens-hover hover:text-lens-fg">
+      <button type="button" onClick={stopListening} aria-label="ئۈنلۈك ئوقۇشنى توختىتىش" className="grid size-9 place-items-center rounded-full text-lens-fg/80 transition-colors hover:bg-lens-hover hover:text-lens-fg">
         <Square size={13} fill="currentColor" strokeWidth={0} />
       </button>
     </div>

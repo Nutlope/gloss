@@ -97,15 +97,15 @@ function PaintedCovers() {
     <div className="flex items-center justify-between gap-3 border-t border-rule pt-3.5">
       <div className="min-w-0">
         <p className="flex items-center gap-1.5 text-[12.5px] font-medium text-ink-2">
-          <Paintbrush size={13} /> Painted covers
+          <Paintbrush size={13} /> سىزىلغان مۇقاۋىلار
         </p>
-        <p className="mt-0.5 text-[11.5px] leading-snug text-ink-3">A picture for each text in your library, about 2¢ each.</p>
+        <p className="mt-0.5 text-[11.5px] leading-snug text-ink-3">كۈتۈپخانىڭىزدىكى ھەر بىر تېكىستكە بىر رەسىم، ھەربىرى تەخمىنەن 2¢.</p>
       </div>
       <button
         type="button"
         role="switch"
         aria-checked={paintedCovers}
-        aria-label="Painted covers"
+        aria-label="سىزىلغان مۇقاۋىلار"
         onClick={() => setLibraryPrefs({ paintedCovers: !paintedCovers })}
         className={`relative h-[22px] w-[38px] shrink-0 rounded-full transition-colors ${paintedCovers ? "bg-[var(--rubric)]" : "bg-rule-strong"}`}
       >
@@ -182,19 +182,19 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
   };
 
   return (
-    <Popover label="Appearance and answers" tip="Appearance" width={compact ? 316 : 348} triggerClass={barBtn} trigger={<span className="block translate-y-[0.5px] font-serif text-[18px] leading-none">Aa</span>}>
+    <Popover label="كۆرۈنۈش ۋە جاۋابلار" tip="كۆرۈنۈش" width={compact ? 316 : 348} triggerClass={barBtn} trigger={<span className="block translate-y-[0.5px] font-serif text-[18px] leading-none">Aa</span>}>
       {() => (
         <div>
           {!compact && (
             <div className="mb-4">
               <Seg
-                label="Settings section"
+                label="تەڭشەك بۆلىكى"
                 value={tab}
                 onChange={setTab}
                 options={[
-                  { key: "look", label: "Look" },
-                  { key: "text", label: "Text" },
-                  { key: "answers", label: "Answers" },
+                  { key: "look", label: "كۆرۈنۈش" },
+                  { key: "text", label: "تېكىست" },
+                  { key: "answers", label: "جاۋابلار" },
                 ]}
               />
             </div>
@@ -203,7 +203,7 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
           {(compact || tab === "look") && (
             <div className="space-y-3.5">
               <div>
-                <p className="mb-2.5 text-[12.5px] text-ink-3">Theme</p>
+                <p className="mb-2.5 text-[12.5px] text-ink-3">ئۇسلۇب</p>
                 <div className="grid grid-cols-6 gap-2">
                   {THEMES.map((t) => (
                     <button
@@ -211,7 +211,7 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                       type="button"
                       onClick={(e) => pickTheme(t.key, e)}
                       aria-pressed={settings.theme === t.key}
-                      data-tip={t.key === "auto" ? "Follows your system" : undefined}
+                      data-tip={t.key === "auto" ? "سىستېمىڭىزغا ئەگىشىدۇ" : undefined}
                       className="group flex flex-col items-center gap-1.5 rounded-[12px] focus-visible:outline-offset-4"
                     >
                       <Swatch theme={t} on={settings.theme === t.key} />
@@ -221,7 +221,7 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                 </div>
               </div>
 
-              <Row label="Pen">
+              <Row label="قەلەم">
                 <div className="flex items-center gap-2">
                   {PENS.map((p) => (
                     <button
@@ -236,13 +236,13 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                       <span className="size-5 rounded-full" style={{ background: dark ? p.dark : p.light }} />
                     </button>
                   ))}
-                  <span className="ml-1 text-[12px] text-ink-3">{PENS.find((p) => p.key === settings.pen)?.label}</span>
+                  <span className="ms-1 text-[12px] text-ink-3">{PENS.find((p) => p.key === settings.pen)?.label}</span>
                 </div>
               </Row>
 
               {!compact && (
                 <>
-                  <Row label="Highlighter">
+                  <Row label="بەلگىلىگۈچ">
                     <div className="flex items-center gap-2">
                       {MARKERS.map((m) => (
                         <button
@@ -257,14 +257,14 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                           <span className="h-3 w-5 -rotate-12 rounded-[3px] opacity-80" style={{ background: m.color }} />
                         </button>
                       ))}
-                      <span className="ml-1 text-[12px] text-ink-3">{MARKERS.find((m) => m.key === settings.marker)?.label}</span>
+                      <span className="ms-1 text-[12px] text-ink-3">{MARKERS.find((m) => m.key === settings.marker)?.label}</span>
                     </div>
                   </Row>
                   <div className="grid grid-cols-2 gap-1.5 border-t border-rule pt-3.5">
-                    <Chip label="Numbers" icon={<Pilcrow size={14} />} on={settings.numbers} onChange={(v) => set({ numbers: v })} />
-                    <Chip label="Map" icon={<MapIcon size={14} />} on={settings.rail} onChange={(v) => set({ rail: v })} />
-                    <Chip label="Focus" icon={<Focus size={14} />} on={focusMode} onChange={(v) => setUI({ focusMode: v })} />
-                    <Chip label="Listen" icon={<Headphones size={14} />} on={settings.listen} onChange={(v) => set({ listen: v })} />
+                    <Chip label="نومۇرلار" icon={<Pilcrow size={14} />} on={settings.numbers} onChange={(v) => set({ numbers: v })} />
+                    <Chip label="خەرىتە" icon={<MapIcon size={14} />} on={settings.rail} onChange={(v) => set({ rail: v })} />
+                    <Chip label="دىققەت" icon={<Focus size={14} />} on={focusMode} onChange={(v) => setUI({ focusMode: v })} />
+                    <Chip label="ئاڭلاش" icon={<Headphones size={14} />} on={settings.listen} onChange={(v) => set({ listen: v })} />
                   </div>
                 </>
               )}
@@ -275,7 +275,7 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
           {!compact && tab === "text" && (
             <div className="space-y-3.5">
               <div>
-                <p className="mb-2.5 text-[12.5px] text-ink-3">Typeface</p>
+                <p className="mb-2.5 text-[12.5px] text-ink-3">خەت نۇسخىسى</p>
                 <div className="grid grid-cols-4 gap-2">
                   {FACES.map((f) => (
                     <button
@@ -295,9 +295,9 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                   ))}
                 </div>
               </div>
-              <Row label="Size">
+              <Row label="چوڭلۇقى">
                 <div className="flex items-center gap-1.5">
-                  <button type="button" aria-label="Smaller text" data-tip="Smaller" onClick={() => size(settings.size - 1)} className="grid size-7 place-items-center rounded-lg text-ink-2 transition-transform hover:bg-sunk active:scale-90">
+                  <button type="button" aria-label="كىچىكرەك خەت" data-tip="كىچىكرەك" onClick={() => size(settings.size - 1)} className="grid size-7 place-items-center rounded-lg text-ink-2 transition-transform hover:bg-sunk active:scale-90">
                     <Minus size={14} />
                   </button>
                   <input
@@ -306,58 +306,58 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                     max={28}
                     value={settings.size}
                     onChange={(e) => size(Number(e.target.value))}
-                    aria-label="Text size"
+                    aria-label="خەت چوڭلۇقى"
                     className="h-1 min-w-0 flex-1 accent-[var(--rubric)]"
                   />
-                  <button type="button" aria-label="Larger text" data-tip="Larger" onClick={() => size(settings.size + 1)} className="grid size-7 place-items-center rounded-lg text-ink-2 transition-transform hover:bg-sunk active:scale-90">
+                  <button type="button" aria-label="چوڭراق خەت" data-tip="چوڭراق" onClick={() => size(settings.size + 1)} className="grid size-7 place-items-center rounded-lg text-ink-2 transition-transform hover:bg-sunk active:scale-90">
                     <Plus size={14} />
                   </button>
-                  <span className="w-6 text-right text-[12px] tabular-nums text-ink-3">{settings.size}</span>
+                  <span className="w-6 text-end text-[12px] tabular-nums text-ink-3">{settings.size}</span>
                 </div>
               </Row>
-              <Row label="Spacing">
+              <Row label="ئارىلىق">
                 <Seg
-                  label="Line spacing"
+                  label="قۇر ئارىلىقى"
                   value={settings.leading}
                   onChange={(v) => set({ leading: v })}
                   options={[
-                    { key: "tight", label: "Snug" },
-                    { key: "normal", label: "Even" },
-                    { key: "loose", label: "Airy" },
+                    { key: "tight", label: "زىچ" },
+                    { key: "normal", label: "ئوتتۇرا" },
+                    { key: "loose", label: "كەڭ" },
                   ]}
                 />
               </Row>
-              <Row label="Width">
+              <Row label="كەڭلىكى">
                 <Seg
-                  label="Column width"
+                  label="ئىستون كەڭلىكى"
                   value={settings.width}
                   onChange={(v) => set({ width: v })}
                   options={[
-                    { key: "narrow", label: "Narrow" },
-                    { key: "normal", label: "Even" },
-                    { key: "wide", label: "Wide" },
+                    { key: "narrow", label: "تار" },
+                    { key: "normal", label: "ئوتتۇرا" },
+                    { key: "wide", label: "كەڭ" },
                   ]}
                 />
               </Row>
-              <Row label="Align">
+              <Row label="توغرىلاش">
                 <Seg
-                  label="Text alignment"
+                  label="تېكىست توغرىلىنىشى"
                   value={settings.align}
                   onChange={(v) => set({ align: v })}
                   options={[
-                    { key: "left", label: <><AlignLeft size={13} /> Left</> },
-                    { key: "justify", label: <><AlignJustify size={13} /> Justified</> },
+                    { key: "left", label: <><AlignLeft size={13} /> باشتىن</> },
+                    { key: "justify", label: <><AlignJustify size={13} /> ئىككى چەتكە</> },
                   ]}
                 />
               </Row>
-              <Row label="Paragraphs">
+              <Row label="ئابزاسلار">
                 <Seg
-                  label="Paragraph style"
+                  label="ئابزاس ئۇسلۇبى"
                   value={settings.paras}
                   onChange={(v) => set({ paras: v })}
                   options={[
-                    { key: "spaced", label: "Spaced" },
-                    { key: "indented", label: "Indented" },
+                    { key: "spaced", label: "ئارىلىقلىق" },
+                    { key: "indented", label: "كىرگۈزۈلگەن" },
                   ]}
                 />
               </Row>
@@ -376,7 +376,7 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
                   }
                   className="inline-flex items-center gap-1.5 text-[12.5px] text-ink-3 transition-colors hover:text-ink"
                 >
-                  <RotateCcw size={12} /> Reset text settings
+                  <RotateCcw size={12} /> تېكىست تەڭشەكلىرىنى ئەسلىگە قايتۇرۇش
                 </button>
               )}
             </div>
@@ -385,19 +385,19 @@ export function SettingsMenu({ compact = false }: { compact?: boolean }) {
           {!compact && tab === "answers" && (
             <div className="space-y-4">
               <div>
-                <p className="mb-2 text-[12.5px] text-ink-3">Answer length</p>
+                <p className="mb-2 text-[12.5px] text-ink-3">جاۋاب ئۇزۇنلۇقى</p>
                 <Seg
-                  label="Answer length"
+                  label="جاۋاب ئۇزۇنلۇقى"
                   value={settings.length}
                   onChange={(v) => set({ length: v })}
                   options={[
-                    { key: "short", label: "Short" },
-                    { key: "normal", label: "Balanced" },
-                    { key: "long", label: "Detailed" },
+                    { key: "short", label: "قىسقا" },
+                    { key: "normal", label: "تەڭپۇڭ" },
+                    { key: "long", label: "تەپسىلىي" },
                   ]}
                 />
                 <p className="mt-2 text-[12px] leading-snug text-ink-4">
-                  {settings.length === "short" ? "A sentence or three." : settings.length === "long" ? "Room for nuance, up to a short paragraph or two." : "About a paragraph."}
+                  {settings.length === "short" ? "بىر-ئۈچ جۈملە." : settings.length === "long" ? "نازۇكلۇققا ئورۇن، بىر-ئىككى قىسقا ئابزاسقىچە." : "تەخمىنەن بىر ئابزاس."}
                 </p>
               </div>
             </div>

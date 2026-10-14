@@ -53,7 +53,7 @@ export const Composer = forwardRef<ComposerHandle, { currentBlock: () => string 
           e.preventDefault();
           ask(q);
         }}
-        className={`pointer-events-auto mx-auto flex max-w-[34rem] items-center gap-2 rounded-[16px] border bg-raised/92 py-1.5 pl-4 pr-1.5 shadow-pop backdrop-blur-md transition-[border-color,max-width] duration-300 ease-[var(--ease-out)] ${
+        className={`pointer-events-auto mx-auto flex max-w-[34rem] items-center gap-2 rounded-[16px] border bg-raised/92 py-1.5 ps-4 pe-1.5 shadow-pop backdrop-blur-md transition-[border-color,max-width] duration-300 ease-[var(--ease-out)] ${
           focused ? "max-w-[38rem] border-rule-strong" : "border-rule"
         }`}
       >
@@ -69,8 +69,8 @@ export const Composer = forwardRef<ComposerHandle, { currentBlock: () => string 
               inputRef.current?.blur();
             }
           }}
-          placeholder="Ask about the whole text"
-          aria-label="Ask anything about the whole text"
+          placeholder="پۈتۈن تېكىست ھەققىدە سوراش"
+          aria-label="پۈتۈن تېكىست ھەققىدە خالىغاننى سوراڭ"
           className="h-9 min-w-0 flex-1 bg-transparent text-[14.5px] text-ink outline-none focus-visible:outline-none placeholder:text-ink-3"
         />
         {!focused && !q && <kbd className="hidden sm:inline">/</kbd>}
@@ -78,8 +78,8 @@ export const Composer = forwardRef<ComposerHandle, { currentBlock: () => string 
         <button
           type="submit"
           disabled={!q.trim()}
-          aria-label="Ask"
-          data-tip="Ask"
+          aria-label="سوراش"
+          data-tip="سوراش"
           data-tip-kbd={"\u21b5"}
           className="grid size-9 shrink-0 place-items-center rounded-[11px] bg-ink text-bg transition-opacity disabled:opacity-25"
         >

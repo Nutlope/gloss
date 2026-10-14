@@ -51,11 +51,11 @@ export function LibraryLine({ saved }: { saved: Saved | null }) {
         <span className="lib-line-note">
           <Check size={14} className="shrink-0 text-good" />
           <span className="min-w-0 truncate">
-            Saved <span className="text-ink">{tidyTitle(saved.title)}</span> to your library
+            ساقلانغان <span className="text-ink">{tidyTitle(saved.title)}</span> to your library
           </span>
         </span>
         <Link href="/library" className="lib-line-go">
-          Open <ArrowRight size={13} />
+          ئېچىش <ArrowRight size={13} />
         </Link>
       </p>
     );
@@ -66,7 +66,7 @@ export function LibraryLine({ saved }: { saved: Saved | null }) {
     if (!samples.length) return <div className="lib-line" aria-hidden />;
     return (
       <p className="lib-line">
-        <span>No link handy? Try</span>
+        <span>ئۇلانما يوقمۇ؟ سىناپ بېقىڭ:</span>
         {samples.map((a) => (
           <Link key={a.id} href={`/read/${a.id}`} className="lib-sample" data-tip={a.title} data-tip-hint={`${a.author}, ${a.published}`}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -84,18 +84,18 @@ export function LibraryLine({ saved }: { saved: Saved | null }) {
         <Link href={`/read/${reading.id}`} className="lib-line-note group transition-colors hover:text-ink">
           <Ring pct={reading.pct} />
           <span className="min-w-0 truncate">
-            Continue <span className="text-ink">{reading.title}</span>
+            داۋاملاشتۇرۇش <span className="text-ink">{reading.title}</span>
           </span>
           <span className="shrink-0 tabular-nums text-ink-4">{Math.round(reading.pct * 100)}%</span>
         </Link>
       ) : (
         <span className="lib-line-note">
-          {library.length} {library.length === 1 ? "text" : "texts"} on your shelves
+          جاۋىلىرىڭىزدا {library.length} تېكىست
         </span>
       )}
       {library.length > 0 && (
         <Link href="/library" className="lib-line-go">
-          Your library <ArrowRight size={13} />
+          كۈتۈپخانىڭىز <ArrowRight size={13} />
         </Link>
       )}
     </p>

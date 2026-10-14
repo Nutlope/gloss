@@ -41,7 +41,7 @@ const legible = Atkinson_Hyperlegible_Next({
   adjustFontFallback: false,
 });
 
-const DESCRIPTION = "Highlight any line and ask it anything. An open model writes the answer in the margin, beside the words, citing the paragraphs it used.";
+const DESCRIPTION = "خالىغان قۇرنى بەلگىلەپ، ئۇنىڭدىن خالىغان نەرسىنى سوراڭ. ئوچۇق مودېل جاۋابنى سۆزلەرنىڭ يېنىدىكى ھاشىيەگە يازىدۇ ۋە ئىشلەتكەن ئابزاسلىرىنى نەقىل قىلىدۇ.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -77,11 +77,11 @@ const CLERK_APPEARANCE = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${serif.variable} ${sans.variable} ${book.variable} ${legible.variable}`} suppressHydrationWarning>
+    <html lang="ug" dir="rtl" className={`${serif.variable} ${sans.variable} ${book.variable} ${legible.variable}`} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: BOOT_SCRIPT }} />
       </head>
-      <body>
+      <body className="alkatip-basma">
         <ClerkProvider appearance={CLERK_APPEARANCE}>
           {children}
           <SyncAgent />

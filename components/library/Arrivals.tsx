@@ -53,12 +53,12 @@ export function Arrivals({
   }, [books]);
 
   const mark = markFor(wave.via);
-  const who = wave.agent ? (mark ? MARK_NAMES[mark] : wave.via || "Your agent") : null;
+  const who = wave.agent ? (mark ? MARK_NAMES[mark] : wave.via || "ۋاكالەتچىڭىز") : null;
   const n = books.length;
   const latest = books[n - 1];
   const shown = books.slice(-SHOWN);
   const more = n - shown.length;
-  const noun = n === 1 ? "article" : "articles";
+  const noun = "ماقالە";
 
   return createPortal(
     <div ref={ref} className="arr" data-done={wave.done || undefined} data-leaving={wave.leaving || undefined} role="status" aria-live="polite">
@@ -70,23 +70,23 @@ export function Arrivals({
           {who ? (
             wave.done ? (
               <>
-                <b>{who}</b> added {n} {noun} to your library
+                <b>{who}</b> كۈتۈپخانىڭىزغا {n} {noun} قوشتى
               </>
             ) : (
               <>
-                <b>{who}</b> is adding articles to your library
+                <b>{who}</b> كۈتۈپخانىڭىزغا ماقالە قوشۇۋاتىدۇ
               </>
             )
           ) : wave.done ? (
             <>
-              <b>{n}</b> new {noun} on your shelves
+              جاۋىلىرىڭىزدا <b>{n}</b> يېڭى {noun}
             </>
           ) : (
-            <>Adding to your library</>
+            <>كۈتۈپخانىڭىزغا قوشۇۋاتىدۇ</>
           )}
         </p>
         {!wave.done && <span className="arr-count tabular-nums">{n}</span>}
-        <button type="button" aria-label="Dismiss" onClick={onClose} className="arr-x">
+        <button type="button" aria-label="يېپىش" onClick={onClose} className="arr-x">
           <X size={15} />
         </button>
       </div>
@@ -117,10 +117,10 @@ export function Arrivals({
       {wave.done ? (
         <div className="arr-actions">
           <button type="button" onClick={onShow} className="arr-show">
-            Show {n === 1 ? "it" : "them"} on the shelf
+            جاۋىدا كۆرسىتىش
           </button>
           <button type="button" onClick={onRemove} className="arr-undo">
-            Remove {n === 1 ? "it" : "them"}
+            چىقىرىۋېتىش {n === 1 ? "it" : "them"}
           </button>
         </div>
       ) : (

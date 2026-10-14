@@ -9,8 +9,8 @@ export function Account() {
     <>
       <Show when="signed-out">
         <SignInButton mode="modal">
-          <button type="button" className={`${barBtn} !px-3 whitespace-nowrap`} data-tip="Keep your highlights and notes on every device">
-            Sign in
+          <button type="button" className={`${barBtn} !px-3 whitespace-nowrap`} data-tip="بەلگە ۋە خاتىرىلىرىڭىزنى ھەممە ئۈسكۈنىدە ساقلاڭ">
+            كىرىش
           </button>
         </SignInButton>
       </Show>

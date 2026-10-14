@@ -31,7 +31,7 @@ export function GlossWordmark() {
 export function Lockup({ href = "/" }: { href?: string }) {
   return (
     <div className="flex h-9 items-center gap-3.5 max-[380px]:gap-2.5">
-      <Link href={href} aria-label="Gloss, back to your library" className="rounded-md">
+      <Link href={href} aria-label="Gloss، كۈتۈپخانىڭىزغا قايتىش" className="rounded-md">
         <GlossWordmark />
       </Link>
       <span aria-hidden className="h-[18px] w-px bg-rule-strong" />

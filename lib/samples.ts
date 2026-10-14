@@ -10,7 +10,7 @@ export const sampleById = (id: string) => SAMPLES.find((a) => a.id === id) ?? nu
 
 /** Starter questions per sample, where the age of the text is the interesting part. */
 export const SAMPLE_QUESTIONS: Record<string, string[]> = {
-  "on-a-piece-of-chalk": ["What is the core argument, in three sentences?", "What has science learned since 1868?", "Why lecture this to working men?"],
-  "on-thinking-for-oneself": ["What is the core argument, in three sentences?", "Is he against reading?", "How would he see the internet?"],
-  "walden-reading": ["What is the core argument, in three sentences?", "What does he mean by heroic books?", "Is he being elitist?"],
+  "on-a-piece-of-chalk": ["ئاساسلىق قاراش ئۈچ جۈملىدە نېمە؟", "1868-يىلدىن بۇيان ئىلىم-پەن نېمىلەرنى ئۆگەندى؟", "نېمىشقا بۇنى ئىشچىلارغا لېكسىيە قىلىدۇ؟"],
+  "on-thinking-for-oneself": ["ئاساسلىق قاراش ئۈچ جۈملىدە نېمە؟", "ئۇ ئوقۇشقا قارشىمۇ؟", "ئۇ ئىنتېرنېتقا قانداق قارايدۇ؟"],
+  "walden-reading": ["ئاساسلىق قاراش ئۈچ جۈملىدە نېمە؟", "ئۇ «قەھرىمانلىق كىتابلار» دېگەندە نېمىنى كۆزدە تۇتىدۇ؟", "ئۇ ئېلىتىزىمچىمۇ؟"],
 };

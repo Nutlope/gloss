@@ -81,7 +81,7 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
       try {
         host = new URL(/^https?:/i.test(host) ? host : `https://${host}`).hostname.replace(/^www\./, "");
       } catch {}
-      setBusy({ label: `${later ? "Saving" : "Reading"} ${host}` });
+      setBusy({ label: `${later ? "ساقلاۋاتىدۇ" : "ئوقۇۋاتىدۇ"} ${host}` });
       // A link to a PDF is read here in the browser, with its progress in the bar.
       const r = await importFromUrl(raw, (p, label) => setBusy({ label: label ?? `Reading ${host}`, pct: p }));
       if (!r.ok) {
@@ -111,7 +111,7 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
     if (!raw) return;
     // Off the address bar, so a reload or a shared screenshot does not import it again.
     window.history.replaceState(null, "", "/");
-    if (!looksLikeUrl(raw)) return setError("That does not look like a link.");
+    if (!looksLikeUrl(raw)) return setError("بۇ ئۇلانمىغا ئوخشىمايدۇ.");
     const known = useStore.getState().library.find((x) => x.sourceUrl && normalizeUrl(x.sourceUrl) === normalizeUrl(raw));
     if (known) return later ? setSaved({ id: known.id, title: known.title }) : go(known.id);
     setUrl(raw);
@@ -209,7 +209,7 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
     const mine = library.map((x) => ({
       id: x.id,
       title: x.title,
-      byline: x.author || x.source || (x.origin === "paste" ? "Pasted text" : "Imported"),
+      byline: x.author || x.source || (x.origin === "paste" ? "چاپلانغان تېكىست" : "ئەكىرىلگەن"),
       words: x.words,
       pct: p(x.id),
       glosses: g(x.id),
@@ -281,8 +281,8 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
       {dragging && (
         <div className="pointer-events-none fixed inset-0 z-[90] grid place-items-center bg-bg/80 backdrop-blur-sm" style={{ animation: "fade 0.15s" }}>
           <div className="rounded-[28px] border-[1.5px] border-dashed border-[var(--rubric)] px-16 py-14 text-center">
-            <p className="font-serif text-[40px] leading-none text-ink">Drop to read</p>
-            <p className="mt-3 text-[14px] text-ink-3">PDF, .txt or .md</p>
+            <p className="font-serif text-[40px] leading-none text-ink">ئوقۇش ئۈچۈن تاشلاڭ</p>
+            <p className="mt-3 text-[14px] text-ink-3">PDF، ‎.txt ياكى ‎.md</p>
           </div>
         </div>
       )}

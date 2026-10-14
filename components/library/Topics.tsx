@@ -28,7 +28,7 @@ export function TopicGrid({ topics, onPick }: { topics: { topic: Topic; books: B
             <div className="min-w-0">
               <ViewTransition name={`topic-name-${t.key}`} share="lib-morph" default="none">
                 <h3 className="w-fit font-serif text-[27px] leading-[1.05] tracking-[-0.015em] text-ink">
-                  <Glyph k={t.key} size={30} className="mr-2 -mt-1" />
+                  <Glyph k={t.key} size={30} className="me-2 -mt-1" />
                   {t.name}
                 </h3>
               </ViewTransition>
@@ -67,14 +67,14 @@ export function TopicPage({ topic: t, books, tools, onOpen }: { topic: Topic; bo
         <div className="relative max-w-[640px]">
           <ViewTransition name={`topic-name-${t.key}`} share="lib-morph" default="none">
             <h2 className="w-fit font-serif text-[clamp(40px,6vw,64px)] leading-[0.98] tracking-[-0.025em] text-ink">
-              <Glyph k={t.key} size={64} className="mr-3 !align-[-0.12em] max-sm:!size-[44px]" />
+              <Glyph k={t.key} size={64} className="me-3 !align-[-0.12em] max-sm:!size-[44px]" />
               {t.name}
             </h2>
           </ViewTransition>
           <p className="mt-4 text-pretty font-serif text-[18px] leading-[1.5] text-ink-2">{t.blurb}</p>
           <p className="mt-3 text-[13px] text-ink-3">
-            {books.length} {books.length === 1 ? "piece" : "pieces"} · {hours(books)} of reading
-            {books.some((b) => b.pct > 0 && b.pct < 1) && ` · ${books.filter((b) => b.pct > 0 && b.pct < 1).length} in progress`}
+            {books.length} پارچە · {hours(books)} ئوقۇش
+            {books.some((b) => b.pct > 0 && b.pct < 1) && ` · ${books.filter((b) => b.pct > 0 && b.pct < 1).length} ئوقۇلۇۋاتىدۇ`}
           </p>
         </div>
       </header>
@@ -97,14 +97,14 @@ export function TopicPage({ topic: t, books, tools, onOpen }: { topic: Topic; bo
               {b.pct > 0 && (
                 <>
                   <span aria-hidden>·</span>
-                  <span className={b.pct >= 1 ? "text-good" : "text-rubric-text"}>{b.pct >= 1 ? "Read" : `${Math.round(b.pct * 100)}%`}</span>
+                  <span className={b.pct >= 1 ? "text-good" : "text-rubric-text"}>{b.pct >= 1 ? "ئوقۇش" : `${Math.round(b.pct * 100)}%`}</span>
                 </>
               )}
-              {b.favorite && <span aria-label="Favourite">⭐</span>}
+              {b.favorite && <span aria-label="ياقتۇرغان">⭐</span>}
             </p>
           </li>
         ))}
-        {!books.length && <li className="col-span-full py-16 text-center text-[14px] text-ink-3">Nothing here matches.</li>}
+        {!books.length && <li className="col-span-full py-16 text-center text-[14px] text-ink-3">بۇ يەردە ماس كېلىدىغىنى يوق.</li>}
       </ul>
     </div>
   );

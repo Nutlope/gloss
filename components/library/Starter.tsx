@@ -36,7 +36,7 @@ export function Starter({ count, signedIn, onAdd }: { count: number; signedIn: b
   };
 
   return (
-    <section className="starter" aria-label="Fill your library">
+    <section className="starter" aria-label="كۈتۈپخانىڭىزنى تولدۇرۇڭ">
       <div className="starter-card is-classics">
         <div className="starter-fan" aria-hidden>
           {CLASSICS.slice(0, 5).map((c, i) => (
@@ -45,36 +45,36 @@ export function Starter({ count, signedIn, onAdd }: { count: number; signedIn: b
           ))}
         </div>
         <div className="min-w-0">
-          <p className="starter-title">{count ? "Add a few classics" : "Start with a few classics"}</p>
-          <p className="starter-body">A dozen essays people keep coming back to: Hamming, Feynman, Orwell, Graham, Wallace and more.</p>
+          <p className="starter-title">{count ? "بىر قانچە كلاسسىك ئەسەر قوشۇش" : "بىر قانچە كلاسسىك ئەسەردىن باشلاڭ"}</p>
+          <p className="starter-body">كىشىلەر قايتا-قايتا ئوقۇيدىغان ئون نەچچە ماقالە: Hamming، Feynman، Orwell، Graham، Wallace قاتارلىقلار.</p>
           <button type="button" onClick={shelveClassics} disabled={Boolean(busy)} className="starter-btn">
             {busy ? (
               <>
-                <Loader2 size={15} className="animate-spin" /> Shelving {busy.done} of {busy.total}
+                <Loader2 size={15} className="animate-spin" /> جاۋىغا قويۇۋاتىدۇ {busy.total} دىن {busy.done}
               </>
             ) : (
               <>
-                Shelve them <ArrowRight size={15} />
+                جاۋىغا قويۇش <ArrowRight size={15} />
               </>
             )}
           </button>
-          {failed > 0 && !busy && <p className="mt-2 text-[12.5px] text-ink-3">{failed} couldn&apos;t be read in just now. Try again later.</p>}
+          {failed > 0 && !busy && <p className="mt-2 text-[12.5px] text-ink-3">{failed} ھازىرچە ئوقۇلمىدى. كېيىن قايتا سىناڭ.</p>}
         </div>
       </div>
       <button type="button" className="starter-card" onClick={() => onAdd("links")}>
         <span className="starter-icon">
           <Link2 size={20} />
         </span>
-        <span className="starter-title">Save your own links</span>
-        <span className="starter-body">Paste one or many. Gloss reads each one in and sorts it onto a topic.</span>
+        <span className="starter-title">ئۆز ئۇلانمىلىرىڭىزنى ساقلاڭ</span>
+        <span className="starter-body">بىر ياكى كۆپنى چاپلاڭ. Gloss ھەربىرىنى ئوقۇپ، تېمىغا ئايرىيدۇ.</span>
       </button>
       <button type="button" className="starter-card" onClick={() => onAdd("agent")}>
         <span className="starter-icon is-agent">
           <MarkStack size={24} />
         </span>
-        <span className="starter-title">Let your agent shelve for you</span>
+        <span className="starter-title">ۋاكالەتچىڭىز سىز ئۈچۈن جاۋىغا قويسۇن</span>
         <span className="starter-body">
-          Give Grok Bot, Claude or ChatGPT your library, and ask it to save the good articles from your bookmarks.{!signedIn && " Needs an account."}
+          كۈتۈپخانىڭىزنى Grok Bot، Claude ياكى ChatGPT غا بېرىپ، خەتكۈچلىرىڭىزدىكى ياخشى ماقالىلەرنى ساقلاشنى سوراڭ.{!signedIn && " ھېسابات كېرەك."}
         </span>
       </button>
     </section>

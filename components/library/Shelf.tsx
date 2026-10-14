@@ -200,7 +200,7 @@ export function Shelf({
         const style = { transform: `translate(${l.x}px, ${l.row * PITCH + AREA + PLANK + 8}px)` };
         const body = (
           <>
-            {l.icon && <Glyph k={l.icon} size={16} className="mr-[5px]" />}
+            {l.icon && <Glyph k={l.icon} size={16} className="me-[5px]" />}
             {l.label}
             <span className="plank-n">{l.count}</span>
           </>

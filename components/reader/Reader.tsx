@@ -79,10 +79,10 @@ export function Reader({ id, initial }: { id: string; initial: Article | null })
       <main className="grid min-h-dvh place-items-center px-6 text-center">
         <div>
           <GlossWordmark />
-          <p className="mt-6 font-serif text-[26px] text-ink">This text is not on this device.</p>
-          <p className="mt-2 text-[14px] text-ink-3">Imported texts live in the browser that imported them, or in your account when you are signed in.</p>
+          <p className="mt-6 font-serif text-[26px] text-ink">بۇ تېكىست بۇ ئۈسكۈنىدە يوق.</p>
+          <p className="mt-2 text-[14px] text-ink-3">ئەكىرىلگەن تېكىستلەر ئۇلارنى ئەكىرگەن توركۆرگۈدە، ياكى كىرگەن بولسىڭىز ھېساباتىڭىزدا ساقلىنىدۇ.</p>
           <Link href="/" className="mt-6 inline-flex h-10 items-center rounded-full bg-ink px-5 text-[14px] font-medium text-bg">
-            Back to the library
+            كۈتۈپخانىغا قايتىش
           </Link>
         </div>
       </main>
@@ -472,7 +472,7 @@ function ReaderInner({ article }: { article: Article }) {
 
   const paraCount = ix.byNumber.size;
   // A short line above the title: where this came from.
-  const kicker = article.source ? article.source.split(/,|\(/)[0].trim() : article.origin === "paste" ? "Pasted text" : undefined;
+  const kicker = article.source ? article.source.split(/,|\(/)[0].trim() : article.origin === "paste" ? "چاپلانغان تېكىست" : undefined;
 
   return (
     <ReaderContext.Provider value={api}>
@@ -508,11 +508,11 @@ function ReaderInner({ article }: { article: Article }) {
                 <div className="focus-hide rise mt-8 flex items-center gap-4 border-t border-rule pt-5" style={{ animationDelay: "140ms" }}>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-[14.5px] leading-snug text-ink">
-                      {article.author ? <span className="font-medium">{article.author}</span> : <span className="font-medium">{kicker ?? "Untitled source"}</span>}
+                      {article.author ? <span className="font-medium">{article.author}</span> : <span className="font-medium">{kicker ?? "ماۋزۇسىز مەنبە"}</span>}
                       {article.published && <span className="text-ink-3">{`  \u00b7  ${article.published}`}</span>}
                     </p>
                     <p className="mt-1 text-[13px] leading-snug text-ink-3">
-                      {readingMinutes(ix.words)} min read <span className="text-ink-4">{"\u00b7"}</span> {paraCount} paragraphs
+                      {readingMinutes(ix.words)} مىنۇتلۇق ئوقۇش <span className="text-ink-4">{"\u00b7"}</span> {paraCount} ئابزاس
                     </p>
                   </div>
                   {article.sourceUrl && (
@@ -522,7 +522,7 @@ function ReaderInner({ article }: { article: Article }) {
                       rel="noopener noreferrer"
                       className="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-rule px-3.5 text-[13px] font-medium text-ink-2 transition-[border-color,color,transform] hover:border-rule-strong hover:text-ink active:scale-[0.97]"
                     >
-                      Original <ArrowUpRight size={14} strokeWidth={2} />
+                      ئەسلى <ArrowUpRight size={14} strokeWidth={2} />
                     </a>
                   )}
                 </div>
@@ -555,9 +555,9 @@ function ReaderInner({ article }: { article: Article }) {
                 <p aria-hidden className="mb-8 text-center font-serif text-[26px] leading-none text-[var(--rubric)]">
                   ❦
                 </p>
-                {article.source && <p>From {article.source}.</p>}
+                {article.source && <p>مەنبە {article.source}.</p>}
                 <p className="mt-1">
-                  Glosses are powered by DeepSeek V4.1 Flash, served by{" "}
+                  ئىزاھلار DeepSeek V4.1 Flash ئارقىلىق ھاسىل قىلىنىدۇ، مۇلازىمەت تەمىنلىگۈچى:{" "}
                   <a href={BRAND.togetherUrl} target="_blank" rel="noopener noreferrer" className="text-ink-2 underline decoration-rule-strong underline-offset-4 hover:text-ink">
                     Together AI
                   </a>
@@ -565,10 +565,10 @@ function ReaderInner({ article }: { article: Article }) {
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <button type="button" onClick={() => setUI({ notebookOpen: true })} className="h-9 rounded-full border border-rule px-4 text-[13px] font-medium text-ink-2 hover:border-rule-strong hover:text-ink">
-                    Open your notebook
+                    خاتىرە دەپتىرىڭىزنى ئېچىش
                   </button>
                   <Link href="/" className="inline-flex h-9 items-center rounded-full border border-rule px-4 text-[13px] font-medium text-ink-2 hover:border-rule-strong hover:text-ink">
-                    Back to the library
+                    كۈتۈپخانىغا قايتىش
                   </Link>
                 </div>
               </footer>
@@ -586,7 +586,7 @@ function ReaderInner({ article }: { article: Article }) {
             role="status"
             className="focus-hint pointer-events-none fixed bottom-[calc(env(safe-area-inset-bottom)+32px)] left-1/2 z-40 whitespace-nowrap rounded-full bg-lens px-4 py-2 text-[13px] text-lens-fg shadow-pop"
           >
-            {window.matchMedia("(pointer: coarse)").matches ? "Focus mode. Scroll up for the menu." : "Focus mode. Press F or Esc to leave."}
+            {window.matchMedia("(pointer: coarse)").matches ? "دىققەت ھالىتى. تىزىملىك ئۈچۈن يۇقىرىغا سۈرۈڭ." : "دىققەت ھالىتى. چىقىش ئۈچۈن F ياكى Esc نى بېسىڭ."}
           </p>
         )}
 
@@ -600,7 +600,7 @@ function ReaderInner({ article }: { article: Article }) {
 
         {toast?.kind === "resume" && (
           <Toast onClose={() => setToast(null)}>
-            <span>Picked up where you left off, at ¶{toast.n}.</span>
+            <span>قالغان يېرىڭىزدىن داۋاملاشتى، ¶{toast.n}.</span>
             <button
               type="button"
               onClick={() => {
@@ -609,17 +609,17 @@ function ReaderInner({ article }: { article: Article }) {
               }}
               className="font-medium underline decoration-lens-mute underline-offset-4"
             >
-              Start over
+              بېشىدىن باشلاش
             </button>
           </Toast>
         )}
         {toast?.kind === "hint" && (
           <Toast onClose={dismissHint}>
             {window.matchMedia("(pointer: coarse)").matches ? (
-              <span>Select any passage to ask about it, explain it or highlight it.</span>
+              <span>سوراش، چۈشەندۈرۈش ياكى بەلگىلەش ئۈچۈن خالىغان بۆلەكنى تاللاڭ.</span>
             ) : (
               <span>
-                Select any passage, then <span className="font-medium">just start typing</span> to ask about it.
+                خالىغان بۆلەكنى تاللاپ، سوراش ئۈچۈن <span className="font-medium">يېزىشنى باشلاڭ</span>.
               </span>
             )}
           </Toast>
@@ -647,7 +647,7 @@ function GlossSheet() {
     >
       <div className="sticky top-0 z-10 flex items-center justify-center bg-raised/95 pb-1 pt-2.5 backdrop-blur">
         <span className="h-1 w-9 rounded-full bg-rule-strong" aria-hidden />
-        <button type="button" aria-label="Close" onClick={() => setUI({ activeGloss: null })} className="absolute right-3 top-2 grid size-8 place-items-center rounded-lg text-ink-3 hover:bg-sunk">
+        <button type="button" aria-label="تاقاش" onClick={() => setUI({ activeGloss: null })} className="absolute right-3 top-2 grid size-8 place-items-center rounded-lg text-ink-3 hover:bg-sunk">
           <X size={16} />
         </button>
       </div>

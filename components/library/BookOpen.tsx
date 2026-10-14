@@ -199,11 +199,11 @@ export function BookOpen({
               <div className="ob-page-in scroll-thin">
                 <div className="ob-kicker">
                   {/* The topic it is shelved under, and the way to move it: one chip. */}
-                  <label className="ob-chip" style={{ ["--c" as string]: t.shades[0] }} data-tip="Move to another topic">
+                  <label className="ob-chip" style={{ ["--c" as string]: t.shades[0] }} data-tip="باشقا تېمىغا يۆتكەش">
                     <Glyph k={t.key} size={15} />
                     <span>{t.name}</span>
                     <ChevronDown size={13} strokeWidth={2.2} className="ob-chip-caret" aria-hidden />
-                    <select value={book.topic} onChange={(e) => onShelve(book, { topic: e.target.value as TopicKey })} aria-label="Topic">
+                    <select value={book.topic} onChange={(e) => onShelve(book, { topic: e.target.value as TopicKey })} aria-label="تېما">
                       {TOPICS.map((x) => (
                         <option key={x.key} value={x.key}>
                           {x.name}
@@ -216,22 +216,22 @@ export function BookOpen({
                       type="button"
                       className="ob-icon"
                       aria-pressed={book.favorite}
-                      aria-label={book.favorite ? "Remove from favourites" : "Add to favourites"}
-                      data-tip={book.favorite ? "Favourite" : "Add to favourites"}
+                      aria-label={book.favorite ? "ياقتۇرغانلاردىن چىقىرىش" : "ياقتۇرغانلارغا قوشۇش"}
+                      data-tip={book.favorite ? "ياقتۇرغان" : "ياقتۇرغانلارغا قوشۇش"}
                       onClick={() => onShelve(book, { favorite: !book.favorite })}
                     >
                       <Star size={15} fill={book.favorite ? "currentColor" : "none"} />
                     </button>
                     {!book.sample && (
-                      <button type="button" className="ob-icon" aria-label="Rename" data-tip="Rename" onClick={() => setRenaming(true)}>
+                      <button type="button" className="ob-icon" aria-label="ئات ئۆزگەرتىش" data-tip="ئات ئۆزگەرتىش" onClick={() => setRenaming(true)}>
                         <PencilLine size={14} />
                       </button>
                     )}
                     <button
                       type="button"
                       className="ob-icon"
-                      aria-label={book.sample ? "Remove this sample" : "Remove from the library"}
-                      data-tip={book.sample ? "Remove this sample" : "Remove from the library"}
+                      aria-label={book.sample ? "بۇ ئۈلگىنى چىقىرىۋېتىش" : "كۈتۈپخانىدىن چىقىرىۋېتىش"}
+                      data-tip={book.sample ? "بۇ ئۈلگىنى چىقىرىۋېتىش" : "كۈتۈپخانىدىن چىقىرىۋېتىش"}
                       onClick={() => onRemove(book)}
                     >
                       <Trash2 size={14} />
@@ -250,7 +250,7 @@ export function BookOpen({
                   <h2 className="ob-title">{book.title}</h2>
                 ) : (
                   <h2 className="ob-title">
-                    <button type="button" className="ob-title-btn" data-tip="Rename" onClick={() => setRenaming(true)}>
+                    <button type="button" className="ob-title-btn" data-tip="ئات ئۆزگەرتىش" onClick={() => setRenaming(true)}>
                       {book.title}
                     </button>
                   </h2>
@@ -272,10 +272,10 @@ export function BookOpen({
                     ))}
                     {book.agent && (
                       <span>
-                        <Glyph k="agent" size={15} /> Shelved by your agent
+                        <Glyph k="agent" size={15} /> ۋاكالەتچىڭىز جاۋىغا قويغان
                       </span>
                     )}
-                    {book.sample && <span className="is-word">a sample from Gloss</span>}
+                    {book.sample && <span className="is-word">Gloss تىكى ئۈلگە</span>}
                     {book.tags.map((x) => (
                       <span key={x} className="is-word">
                         {x}
@@ -288,13 +288,13 @@ export function BookOpen({
                     <span style={{ width: `${Math.round(book.pct * 100)}%` }} />
                   </span>
                   <span>
-                    {book.pct >= 1 ? "Read" : reading ? `${Math.round(book.pct * 100)}% read` : "Not started"}
-                    {book.highlights > 0 && ` · ${book.highlights} highlight${book.highlights === 1 ? "" : "s"}`}
+                    {book.pct >= 1 ? "ئوقۇش" : reading ? `${Math.round(book.pct * 100)}% ئوقۇلدى` : "باشلانمىغان"}
+                    {book.highlights > 0 && ` · ${book.highlights} بەلگە`}
                   </span>
                 </div>
                 <div className="ob-actions">
                   <button ref={readRef} type="button" onClick={read} className="ob-read">
-                    {book.pct >= 1 ? "Read again" : reading ? "Continue reading" : "Start reading"}
+                    {book.pct >= 1 ? "قايتا ئوقۇش" : reading ? "ئوقۇشنى داۋاملاشتۇرۇش" : "ئوقۇشنى باشلاش"}
                     <ArrowRight size={16} />
                   </button>
                   <div className="ob-sub">
@@ -306,7 +306,7 @@ export function BookOpen({
                       <span />
                     )}
                     <button type="button" onClick={close} className="ob-link">
-                      Put it back <kbd>Esc</kbd>
+                      جايىغا قويۇش <kbd>Esc</kbd>
                     </button>
                   </div>
                 </div>
@@ -324,11 +324,11 @@ export function BookOpen({
                   <div className="ex-art">
                     <Glyph k={t.key} size={60} />
                   </div>
-                  <p className="ex-head">From the library of</p>
+                  <p className="ex-head">كۈتۈپخانىسىدىن:</p>
                   <p className="ex-name">{owner}</p>
                   <span className="ex-rule" aria-hidden />
                   <p className="ex-meta">
-                    No. {plateNo}
+                    نومۇر {plateNo}
                     {book.added ? ` · ${shelved}` : ""}
                   </p>
                 </div>
@@ -364,7 +364,7 @@ function TitleField({ title, onDone }: { title: string; onDone: (title: string |
       className="ob-title ob-title-field"
       defaultValue={title}
       rows={1}
-      aria-label="Title"
+      aria-label="ماۋزۇ"
       spellCheck={false}
       onKeyDown={(e) => {
         if (e.key === "Enter") {

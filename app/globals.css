@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+
+/* Uyghur: ALKATIP Basma, right to left, site-wide. */
+@font-face {
+  font-family: "ALKATIP Basma";
+  src: url("https://db.onlinewebfonts.com/t/3c16518f40da2fc2901f37666c0556a7.woff2") format("woff2"),
+       url("https://db.onlinewebfonts.com/t/3c16518f40da2fc2901f37666c0556a7.woff") format("woff"),
+       url("https://db.onlinewebfonts.com/t/3c16518f40da2fc2901f37666c0556a7.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+.alkatip-basma {
+  font-family: "ALKATIP Basma", serif;
+  direction: rtl;
+  unicode-bidi: embed;
+  line-height: 2.2;
+}
+
 /* ==========================================================================
    Gloss. A critical edition for anything you read.
    Paper, ink, a yellow highlighter for you and a vermilion pen for the model.
@@ -167,10 +186,10 @@
   --rubric-wash-strong: color-mix(in oklab, var(--rubric) 17%, transparent);
   --rubric-key: color-mix(in oklab, var(--rubric) var(--key-a, 13%), transparent);
   --selection: color-mix(in oklab, var(--rubric) 18%, transparent);
-  --font-serif: var(--nf-serif), "Iowan Old Style", Georgia, serif;
-  --font-sans: var(--nf-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-book: var(--nf-book), "Iowan Old Style", Georgia, serif;
-  --font-legible: var(--nf-legible), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--nf-serif), "ALKATIP Basma", "Iowan Old Style", Georgia, serif;
+  --font-sans: var(--nf-sans), "ALKATIP Basma", ui-sans-serif, system-ui, sans-serif;
+  --font-book: var(--nf-book), "ALKATIP Basma", "Iowan Old Style", Georgia, serif;
+  --font-legible: var(--nf-legible), "ALKATIP Basma", ui-sans-serif, system-ui, sans-serif;
   /* highlighter inks; alpha per ground */
   --mk-yellow: #f2c438;
   --mk-green: #7cc66f;
@@ -1941,4 +1960,12 @@ a.desk-tile:focus-visible {
     background: var(--rubric);
     vertical-align: middle;
   }
+}
+
+/* RTL: directional icons point the way the text reads. */
+[dir="rtl"] .lucide-arrow-right,
+[dir="rtl"] .lucide-arrow-left,
+[dir="rtl"] .lucide-chevron-right,
+[dir="rtl"] .lucide-chevron-left {
+  transform: scaleX(-1);
 }

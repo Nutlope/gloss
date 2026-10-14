@@ -100,7 +100,7 @@ export function Rail({ articleEl }: { articleEl: HTMLElement | null }) {
     <div
       ref={railRef}
       role="slider"
-      aria-label="Position in the text"
+      aria-label="تېكىستتىكى ئورنى"
       aria-valuemin={0}
       aria-valuemax={100}
       aria-valuenow={Math.round(Math.max(0, Math.min(1, (view.top + view.h * 0.3) / geo.docH)) * 100)}
@@ -165,7 +165,7 @@ export function Rail({ articleEl }: { articleEl: HTMLElement | null }) {
           style={{ top: Math.max(0, hoverSection.y - 4), animation: "fade 0.15s" }}
         >
           {hoverSection.title}
-          <span className="ml-2 text-[11px] tabular-nums text-lens-mute">¶{hoverSection.start}</span>
+          <span className="ms-2 text-[11px] tabular-nums text-lens-mute">¶{hoverSection.start}</span>
         </span>
       )}
     </div>

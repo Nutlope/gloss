@@ -40,11 +40,11 @@ export function DailyHighlight({ foot }: { foot?: ReactNode }) {
     <Desk
       label={
         <>
-          Today, from your highlights
-          {total > 1 && <span className="ml-2 font-normal tabular-nums text-ink-4">{`${done + 1} of ${total}`}</span>}
+          بۈگۈن، بەلگىلىرىڭىزدىن
+          {total > 1 && <span className="ms-2 font-normal tabular-nums text-ink-4">{`${done + 1} of ${total}`}</span>}
         </>
       }
-      aside={<DeskLink onClick={() => setUI({ shelf: "highlights" })}>All highlights</DeskLink>}
+      aside={<DeskLink onClick={() => setUI({ shelf: "highlights" })}>بارلىق بەلگىلەر</DeskLink>}
       foot={foot}
     >
       <div key={pick.id} className="desk-tile is-review">
@@ -63,24 +63,24 @@ export function DailyHighlight({ foot }: { foot?: ReactNode }) {
             <ArrowRight size={13} className="desk-source-go" aria-hidden />
           </p>
         </Link>
-        <div className="flex shrink-0 flex-col items-stretch justify-center gap-1.5 border-l border-rule pl-5 max-sm:flex-row max-sm:border-l-0 max-sm:border-t max-sm:pl-0 max-sm:pt-3">
+        <div className="flex shrink-0 flex-col items-stretch justify-center gap-1.5 border-l border-rule ps-5 max-sm:flex-row max-sm:border-l-0 max-sm:border-t max-sm:ps-0 max-sm:pt-3">
           <button
             type="button"
             onClick={() => updateHighlight(pick.articleId, pick.id, { review: keepInRotation(pick) })}
-            data-tip="Keep it coming back"
-            data-tip-hint="In a few days, then less often"
+            data-tip="قايتا كۆرسىتىپ تۇرۇش"
+            data-tip-hint="بىر نەچچە كۈندىن كېيىن، ئاندىن ئازراق"
             className="h-9 rounded-full bg-ink px-4 text-[13px] font-medium text-bg transition-transform active:scale-[0.97]"
           >
-            Next
+            كېيىنكى
           </button>
           <button
             type="button"
             onClick={() => updateHighlight(pick.articleId, pick.id, { review: retire(pick) })}
-            data-tip="Done with this one"
-            data-tip-hint="It stays a highlight, but leaves the review"
+            data-tip="بۇنى تاماملىدىم"
+            data-tip-hint="بەلگە بولۇپ قالىدۇ، ئەمما تەكرارلاشتىن چىقىدۇ"
             className="h-9 rounded-full px-4 text-[13px] text-ink-3 transition-colors hover:bg-sunk hover:text-ink"
           >
-            Done with it
+            تاماملاندى
           </button>
         </div>
       </div>

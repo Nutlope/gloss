@@ -62,48 +62,48 @@ export function CarefulRead({ article }: { article: Article }) {
   return (
     <div className="focus-hide mt-3 text-[13px] leading-snug text-ink-3" aria-live="polite">
       {state.kind === "idle" && upgrading?.active && (
-        <p className="animate-pulse">{`Improving tables and columns, ${upgrading.done} of ${upgrading.total} ${upgrading.total === 1 ? "page" : "pages"}…`}</p>
+        <p className="animate-pulse">{`جەدۋەل ۋە ئىستونلارنى ياخشىلاۋاتىدۇ، ${upgrading.total} بەتتىن ${upgrading.done}…`}</p>
       )}
       {state.kind === "idle" && !upgrading?.active && (
         <p>
-          Columns, tables or maths look jumbled?{" "}
+          ئىستون، جەدۋەل ياكى ماتېماتىكا قالايمىقانمۇ؟{" "}
           <button type="button" onClick={start} className={link}>
-            Read it more carefully
+            تېخىمۇ ئەستايىدىل ئوقۇش
           </button>
-          {!hasKey && <span className="text-ink-4"> · needs your Together key</span>}
+          {!hasKey && <span className="text-ink-4"> · Together ئاچقۇچىڭىز كېرەك</span>}
         </p>
       )}
       {state.kind === "confirm" && (
         <p>
-          {`This replaces the text and clears your ${marks} ${marks === 1 ? "mark" : "marks"} on it. `}
+          {`بۇ تېكىستنى ئالماشتۇرىدۇ ۋە ئۇنىڭدىكى ${marks} بەلگىڭىزنى تازىلايدۇ. `}
           <button type="button" onClick={() => void run()} className={link}>
-            Read it again
+            قايتا ئوقۇش
           </button>
           {" · "}
           <button type="button" onClick={() => setState({ kind: "idle" })} className="underline-offset-4 hover:text-ink">
-            Keep this text
+            بۇ تېكىستنى ساقلاپ قېلىش
           </button>
         </p>
       )}
       {state.kind === "reading" && (
         <p>
-          <span className="inline-block animate-pulse">Reading it more carefully, about ten seconds a page…</span>{" "}
+          <span className="inline-block animate-pulse">ئەستايىدىل ئوقۇۋاتىدۇ، ھەر بەتكە تەخمىنەن ئون سېكۇنت…</span>{" "}
           <button type="button" onClick={() => abort.current?.abort()} className="underline-offset-4 hover:text-ink hover:underline">
-            Stop
+            توختىتىش
           </button>
         </p>
       )}
-      {state.kind === "done" && <p>Read again, more carefully.</p>}
+      {state.kind === "done" && <p>تېخىمۇ ئەستايىدىل قايتا ئوقۇش.</p>}
       {state.kind === "error" && (
         <p>
           <span className="text-rubric-text">{state.error}</span>{" "}
           {state.needKey ? (
             <button type="button" onClick={openKeyMenu} className={link}>
-              Add your Together key
+              Together ئاچقۇچىڭىزنى قوشۇڭ
             </button>
           ) : (
             <button type="button" onClick={() => setState({ kind: "idle" })} className={link}>
-              Back
+              قايتىش
             </button>
           )}
         </p>

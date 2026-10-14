@@ -95,7 +95,7 @@ function Cite({ n, label }: { n: number; label: string }) {
       onMouseLeave={() => peek(null)}
       onFocus={(e) => exists && peek(n, e.currentTarget.getBoundingClientRect())}
       onBlur={() => peek(null)}
-      aria-label={`Jump to paragraph ${n}`}
+      aria-label={`${n}-ئابزاسقا ئاتلاش`}
     >
       ¶{label}
     </button>
@@ -196,7 +196,7 @@ export const Answer = memo(AnswerImpl);
 /** The web results under an answer that used them, numbered as the answer cites them. */
 export function Sources({ sources }: { sources: Source[] }) {
   return (
-    <ol className="sources mt-3 space-y-1 border-t border-rule pt-2.5" aria-label="Web sources">
+    <ol className="sources mt-3 space-y-1 border-t border-rule pt-2.5" aria-label="تور مەنبەلىرى">
       {sources.map((s) => (
         <li key={s.n}>
           <a
@@ -206,7 +206,7 @@ export function Sources({ sources }: { sources: Source[] }) {
             onClick={(e) => e.stopPropagation()}
             className="group flex items-baseline gap-2 text-[12.5px] leading-snug text-ink-3 transition-colors hover:text-ink"
           >
-            <span className="w-3 shrink-0 text-right tabular-nums text-ink-4">{s.n}</span>
+            <span className="w-3 shrink-0 text-end tabular-nums text-ink-4">{s.n}</span>
             <span className="min-w-0 truncate">{s.title}</span>
             {s.title !== s.site && <span className="shrink-0 text-ink-4">{s.site}</span>}
           </a>

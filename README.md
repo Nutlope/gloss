@@ -1,3 +1,10 @@
+# Gloss — ئۇيغۇرچە نەشرى
+
+بۇ [Nutlope/gloss](https://github.com/Nutlope/gloss) نىڭ ئۇيغۇرچە (ئەرەب يېزىقى، ئوڭدىن سولغا) نەشرى. خالىغان قۇرنى بەلگىلەپ، ئۇنىڭدىن خالىغاننى سوراڭ؛ جاۋاب ھاشىيەدە پەيدا بولىدۇ.
+ئېكران خېتى: ALKATIP Basma.
+
+---
+
 <p align="center">
   <a href="https://usegloss.io"><img alt="Gloss" src="public/og.png"></a>
 </p>

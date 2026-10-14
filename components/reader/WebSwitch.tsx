@@ -12,9 +12,9 @@ export function WebSwitch({ tone = "plain" }: { tone?: "plain" | "lens" }) {
     <button
       type="button"
       aria-pressed={on}
-      aria-label="Search the web"
-      data-tip={on ? "Can look things up on the web" : "Answers from the text only"}
-      data-tip-hint={on ? "When a question needs it, cited as [1], [2]" : "Turn on to let answers search the web"}
+      aria-label="توردىن ئىزدەش"
+      data-tip={on ? "توردىن ئىزدىيەلەيدۇ" : "پەقەت تېكىستتىن جاۋاب بېرىدۇ"}
+      data-tip-hint={on ? "سوئال تەلەپ قىلسا، [1]، [2] شەكلىدە نەقىل قىلىنىدۇ" : "جاۋابلارنىڭ توردىن ئىزدىشىگە يول قويۇش ئۈچۈن ئېچىڭ"}
       onMouseDown={(e) => e.preventDefault()}
       onClick={() => setSettings({ search: !on })}
       className={`flex h-7 shrink-0 items-center gap-1 rounded-[8px] px-2 text-[11.5px] font-medium transition-colors ${
@@ -22,7 +22,7 @@ export function WebSwitch({ tone = "plain" }: { tone?: "plain" | "lens" }) {
       }`}
     >
       <Globe size={13} strokeWidth={2} aria-hidden />
-      Web
+      تور
     </button>
   );
 }

@@ -57,25 +57,25 @@ export function Notebook() {
     notesMarkdown({ title: ix.article.title, author: ix.article.author, published: ix.article.published, url: ix.article.sourceUrl }, glosses, highlights, ix);
   const summary = [
     glosses.length ? `${glosses.length} question${glosses.length === 1 ? "" : "s"}` : "",
-    highlights.length ? `${highlights.length} highlight${highlights.length === 1 ? "" : "s"}` : "",
+    highlights.length ? `${highlights.length} بەلگە` : "",
   ]
     .filter(Boolean)
     .join(", ");
 
   return (
     <aside
-      aria-label="Notebook"
+      aria-label="خاتىرە دەپتىرى"
       className="fixed bottom-2.5 left-2.5 right-2.5 top-[calc(var(--topbar-h)+6px)] z-[45] flex flex-col overflow-hidden rounded-[18px] border border-rule bg-raised shadow-pop sm:left-auto sm:w-[420px]"
       style={{ animation: "sheet-in 0.38s var(--ease-out)" }}
     >
       <header className={`shrink-0 border-b px-5 pb-3.5 pt-4 transition-colors duration-200 ${scrolled ? "border-rule" : "border-transparent"}`}>
         <div className="flex items-center gap-1">
           <div className="min-w-0 flex-1">
-            <h2 className="font-serif text-[23px] font-[420] leading-none tracking-[-0.015em] text-ink [font-variation-settings:'opsz'_36]">Notebook</h2>
-            <p className="mt-1.5 text-[12.5px] leading-none text-ink-3">{summary || "Empty for now"}</p>
+            <h2 className="font-serif text-[23px] font-[420] leading-none tracking-[-0.015em] text-ink [font-variation-settings:'opsz'_36]">خاتىرە دەپتىرى</h2>
+            <p className="mt-1.5 text-[12.5px] leading-none text-ink-3">{summary || "ھازىرچە بوش"}</p>
           </div>
           <HeadBtn
-            label={copied ? "Copied" : "Copy as Markdown"}
+            label={copied ? "كۆچۈرۈلدى" : "Markdown قىلىپ كۆچۈرۈش"}
             disabled={!entries.length}
             onClick={async () => {
               try {
@@ -88,7 +88,7 @@ export function Notebook() {
             {copied ? <Check size={16} className="text-good" /> : <Copy size={16} />}
           </HeadBtn>
           <HeadBtn
-            label="Download Markdown"
+            label="Markdown چۈشۈرۈش"
             disabled={!entries.length}
             onClick={() => {
               const blob = new Blob([markdown()], { type: "text/markdown" });
@@ -102,18 +102,18 @@ export function Notebook() {
             <Download size={16} />
           </HeadBtn>
           <span aria-hidden className="mx-1 h-4 w-px bg-rule" />
-          <HeadBtn label="Close notebook" onClick={() => setUI({ notebookOpen: false })}>
+          <HeadBtn label="خاتىرە دەپتىرىنى تاقاش" onClick={() => setUI({ notebookOpen: false })}>
             <X size={17} />
           </HeadBtn>
         </div>
 
         {both && (
-          <div role="tablist" aria-label="Show" className="mt-4 grid grid-cols-3 rounded-[10px] bg-sunk p-[3px]">
+          <div role="tablist" aria-label="كۆرسىتىش" className="mt-4 grid grid-cols-3 rounded-[10px] bg-sunk p-[3px]">
             {(
               [
-                ["all", "All", entries.length],
-                ["q", "Questions", glosses.length],
-                ["hl", "Highlights", highlights.length],
+                ["all", "ھەممىسى", entries.length],
+                ["q", "سوئاللار", glosses.length],
+                ["hl", "بەلگىلەر", highlights.length],
               ] as const
             ).map(([k, label, count]) => (
               <button
@@ -137,9 +137,9 @@ export function Notebook() {
       {!entries.length ? (
         <div className="flex flex-1 flex-col items-center justify-center px-10 pb-16 text-center">
           <GlossMark className="size-11 text-ink-4" />
-          <p className="mt-5 font-serif text-[20px] leading-tight text-ink">Nothing here yet</p>
+          <p className="mt-5 font-serif text-[20px] leading-tight text-ink">بۇ يەردە تېخى ھېچنېمە يوق</p>
           <p className="mt-2 max-w-[270px] text-[13.5px] leading-relaxed text-ink-3">
-            Select a line and type a question, or highlight it. Every question and answer lands here, in reading order.
+            بىر قۇرنى تاللاپ سوئال يېزىڭ ياكى بەلگىلەڭ. ھەربىر سوئال-جاۋاب ئوقۇش تەرتىپى بويىچە بۇ يەرگە كېلىدۇ.
           </p>
         </div>
       ) : (
@@ -153,13 +153,13 @@ export function Notebook() {
           </ol>
           <Show when="signed-out">
             <p className="px-1 pb-1 pt-4 text-center text-[12.5px] leading-relaxed text-ink-3">
-              These live in this browser only.{" "}
+              بۇلار پەقەت بۇ توركۆرگۈدە ساقلىنىدۇ.{" "}
               <SignInButton mode="modal">
                 <button type="button" className="font-medium text-ink-2 underline decoration-rule-strong underline-offset-4 transition-colors hover:text-ink">
-                  Sign in
+                  كىرىش
                 </button>
               </SignInButton>{" "}
-              to keep them on every device.
+              ، ھەممە ئۈسكۈنىدە ساقلاش ئۈچۈن.
             </p>
           </Show>
         </div>
@@ -186,7 +186,7 @@ function HeadBtn({ label, onClick, disabled, children }: { label: string; onClic
 function ago(t: number) {
   const s = (Date.now() - t) / 1000;
   if (s < 60) return "just now";
-  if (s < 3600) return `${Math.floor(s / 60)} min ago`;
+  if (s < 3600) return `${Math.floor(s / 60)} مىنۇت ئىلگىرى`;
   if (s < 86400) return `${Math.floor(s / 3600)} h ago`;
   return new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
 }
@@ -207,7 +207,7 @@ function GlossEntry({ g }: { g: Gloss }) {
   const removeGloss = useStore((s) => s.removeGloss);
   const blockId = g.anchor?.start.b ?? g.at;
   const n = blockId ? ix.numbers.get(blockId) : undefined;
-  const label = !g.anchor ? "Whole text" : g.action === "ask" ? undefined : ACTIONS[g.action].label;
+  const label = !g.anchor ? "پۈتۈن تېكىست" : g.action === "ask" ? undefined : ACTIONS[g.action].label;
   const go = () => {
     setUI({ activeGloss: g.id, ...(covers() ? { notebookOpen: false } : {}) });
     if (blockId) jumpToBlock(blockId);
@@ -215,10 +215,10 @@ function GlossEntry({ g }: { g: Gloss }) {
 
   return (
     <article className="group relative rounded-[14px] border border-rule bg-bg px-4 pb-4 pt-3.5 transition-colors hover:border-rule-strong">
-      <button type="button" onClick={go} className="block w-full pr-7 text-left">
+      <button type="button" onClick={go} className="block w-full pe-7 text-start">
         <Meta n={n} label={label} at={g.createdAt} />
         {g.anchor && (
-          <span className="mt-2.5 line-clamp-2 border-l-2 border-[var(--rubric-line)] pl-3 font-serif text-[15px] leading-[1.45] text-ink-3 transition-colors group-hover:text-ink-2">
+          <span className="mt-2.5 line-clamp-2 border-l-2 border-[var(--rubric-line)] ps-3 font-serif text-[15px] leading-[1.45] text-ink-3 transition-colors group-hover:text-ink-2">
             {g.anchor.quote}
           </span>
         )}
@@ -243,8 +243,8 @@ function GlossEntry({ g }: { g: Gloss }) {
 
       <button
         type="button"
-        aria-label="Delete this question"
-        data-tip="Delete"
+        aria-label="بۇ سوئالنى ئۆچۈرۈش"
+        data-tip="ئۆچۈرۈش"
         onClick={() => {
           stopGloss(g.id);
           removeGloss(g.articleId, g.id);
@@ -286,7 +286,7 @@ function Clamp({ watch, children }: { watch: string; children: ReactNode }) {
       </div>
       {(over || open) && (
         <button type="button" onClick={() => setOpen((v) => !v)} className="mt-1.5 text-[12.5px] font-medium text-ink-3 transition-colors hover:text-ink">
-          {open ? "Show less" : "Read the whole answer"}
+          {open ? "ئازراق كۆرسىتىش" : "پۈتۈن جاۋابنى ئوقۇش"}
         </button>
       )}
     </>
@@ -305,9 +305,9 @@ function HighlightEntry({ h }: { h: Highlight }) {
           if (covers()) setUI({ notebookOpen: false });
           jumpToBlock(h.anchor.start.b);
         }}
-        className="block w-full pr-7 text-left"
+        className="block w-full pe-7 text-start"
       >
-        <Meta n={ix.numbers.get(h.anchor.start.b)} label={h.note ? "Note" : "Highlight"} at={h.createdAt} />
+        <Meta n={ix.numbers.get(h.anchor.start.b)} label={h.note ? "خاتىرە" : "بەلگىلەش"} at={h.createdAt} />
         <span className="mt-2.5 block font-serif text-[15.5px] leading-[1.5] text-ink">
           <mark className="m-hl text-inherit" data-c={h.color && h.color !== "yellow" ? h.color : undefined}>
             {h.anchor.quote}
@@ -317,8 +317,8 @@ function HighlightEntry({ h }: { h: Highlight }) {
       </button>
       <button
         type="button"
-        aria-label="Remove highlight"
-        data-tip="Remove"
+        aria-label="بەلگىنى ئۆچۈرۈش"
+        data-tip="چىقىرىۋېتىش"
         onClick={() => removeHighlight(ix.article.id, h.id)}
         className="absolute right-2.5 top-2.5 grid size-7 place-items-center rounded-full text-ink-4 opacity-0 transition-opacity hover:bg-sunk hover:text-ink focus-visible:opacity-100 group-hover:opacity-100"
       >

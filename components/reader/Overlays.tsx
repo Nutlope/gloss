@@ -20,22 +20,22 @@ export function Peek({ peek }: { peek: { n: number; rect: DOMRect } | null }) {
     <div className="pop pointer-events-none fixed z-[70] p-4" style={{ ...style, width: w, ["--origin" as string]: below ? "top center" : "bottom center" }} role="tooltip">
       <p className="mb-1.5 text-[11.5px] font-semibold tabular-nums text-rubric-text">¶{peek.n}</p>
       <p className="line-clamp-6 font-serif text-[15px] leading-[1.5] text-ink">{text}</p>
-      <p className="mt-2 text-[11.5px] text-ink-4">Click to jump there</p>
+      <p className="mt-2 text-[11.5px] text-ink-4">ئۇ يەرگە ئاتلاش ئۈچۈن چېكىڭ</p>
     </div>
   );
 }
 
 const KEYS: [string, string][] = [
-  ["Select text, then type", "Ask about the selection"],
-  ["/", "Ask about the whole text"],
-  ["J  K", "Next and previous paragraph"],
-  ["Enter", "Ask about the current paragraph"],
-  ["[  ]", "Previous and next gloss"],
-  ["B", "Gloss this text"],
-  ["N", "Notebook"],
-  ["F", "Focus mode"],
-  ["Esc", "Close or step back"],
-  ["?", "This list"],
+  ["تېكىستنى تاللاپ، ئاندىن يېزىڭ", "تاللانغان قىسىم ھەققىدە سوراش"],
+  ["/", "پۈتۈن تېكىست ھەققىدە سوراش"],
+  ["J  K", "كېيىنكى ۋە ئالدىنقى ئابزاس"],
+  ["Enter", "نۆۋەتتىكى ئابزاس ھەققىدە سوراش"],
+  ["[  ]", "ئالدىنقى ۋە كېيىنكى ئىزاھ"],
+  ["B", "بۇ تېكىستنى ئىزاھلاش"],
+  ["N", "خاتىرە دەپتىرى"],
+  ["F", "دىققەت ھالىتى"],
+  ["Esc", "تاقاش ياكى قايتىش"],
+  ["?", "بۇ تىزىملىك"],
 ];
 
 export function Shortcuts() {
@@ -50,10 +50,10 @@ export function Shortcuts() {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-[80] grid place-items-center bg-ink/20 p-4 backdrop-blur-[2px]" onClick={() => setUI({ shortcutsOpen: false })} style={{ animation: "fade 0.2s" }}>
-      <div role="dialog" aria-label="Keyboard shortcuts" className="pop w-full max-w-[420px] p-6" onClick={(e) => e.stopPropagation()}>
+      <div role="dialog" aria-label="كۇنۇپكا تاختىسى تېزلەتمىلىرى" className="pop w-full max-w-[420px] p-6" onClick={(e) => e.stopPropagation()}>
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="font-serif text-[22px] leading-none text-ink">Keys</h2>
-          <button type="button" aria-label="Close" data-tip="Close" data-tip-kbd="Esc" onClick={() => setUI({ shortcutsOpen: false })} className="grid size-8 place-items-center rounded-lg text-ink-3 hover:bg-sunk">
+          <h2 className="font-serif text-[22px] leading-none text-ink">كۇنۇپكىلار</h2>
+          <button type="button" aria-label="تاقاش" data-tip="تاقاش" data-tip-kbd="Esc" onClick={() => setUI({ shortcutsOpen: false })} className="grid size-8 place-items-center rounded-lg text-ink-3 hover:bg-sunk">
             <X size={16} />
           </button>
         </div>
@@ -65,7 +65,7 @@ export function Shortcuts() {
                   ? <span className="text-[13px] text-ink-2">{k}</span>
                   : k.split("  ").map((x) => <kbd key={x}>{x}</kbd>)}
               </dt>
-              <dd className="text-right text-[13px] text-ink-3">{v}</dd>
+              <dd className="text-end text-[13px] text-ink-3">{v}</dd>
             </div>
           ))}
         </dl>
@@ -79,11 +79,11 @@ export function Toast({ children, onClose }: { children: React.ReactNode; onClos
   return (
     <div
       role="status"
-      className="fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] left-1/2 z-[55] flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-3 rounded-[18px] bg-lens py-1.5 pl-4 pr-1.5 text-[13px] leading-snug text-lens-fg shadow-pop sm:bottom-[96px] sm:rounded-full"
+      className="fixed bottom-[calc(env(safe-area-inset-bottom)+84px)] left-1/2 z-[55] flex w-max max-w-[calc(100vw-24px)] -translate-x-1/2 items-center gap-3 rounded-[18px] bg-lens py-1.5 ps-4 pe-1.5 text-[13px] leading-snug text-lens-fg shadow-pop sm:bottom-[96px] sm:rounded-full"
       style={{ animation: "rise 0.45s var(--ease-spring) both" }}
     >
       {children}
-      <button type="button" aria-label="Dismiss" onClick={onClose} className="grid size-7 place-items-center rounded-full text-lens-mute hover:bg-lens-hover hover:text-lens-fg">
+      <button type="button" aria-label="يېپىش" onClick={onClose} className="grid size-7 place-items-center rounded-full text-lens-mute hover:bg-lens-hover hover:text-lens-fg">
         <X size={14} />
       </button>
     </div>

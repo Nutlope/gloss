@@ -36,17 +36,17 @@ export function AddPanel({ tab, onTab, onClose, signedIn }: { tab: AddTab; onTab
   return createPortal(
     <div className="fixed inset-0 z-[80]" role="presentation">
       <div className="absolute inset-0 bg-ink/20 backdrop-blur-[2px]" style={{ animation: "fade 0.2s both" }} onClick={onClose} />
-      <section role="dialog" aria-modal aria-label="Add to the library" className="add-panel">
+      <section role="dialog" aria-modal aria-label="كۈتۈپخانىغا قوشۇش" className="add-panel">
         <header className="flex items-center justify-between gap-3">
-          <div className="lib-sort !ml-0" role="tablist" aria-label="Add">
+          <div className="lib-sort !ml-0" role="tablist" aria-label="قوشۇش">
             <button type="button" role="tab" aria-selected={tab === "agent"} aria-checked={tab === "agent"} onClick={() => onTab("agent")}>
-              Connect an agent
+              ۋاكالەتچى ئۇلاش
             </button>
             <button type="button" role="tab" aria-selected={tab === "links"} aria-checked={tab === "links"} onClick={() => onTab("links")}>
-              Save links manually
+              ئۇلانمىلارنى قولدا ساقلاش
             </button>
           </div>
-          <button type="button" aria-label="Close" data-tip="Close" data-tip-kbd="Esc" onClick={onClose} className="grid size-9 place-items-center rounded-full text-ink-3 transition-colors hover:bg-sunk hover:text-ink">
+          <button type="button" aria-label="تاقاش" data-tip="تاقاش" data-tip-kbd="Esc" onClick={onClose} className="grid size-9 place-items-center rounded-full text-ink-3 transition-colors hover:bg-sunk hover:text-ink">
             <X size={17} />
           </button>
         </header>
@@ -66,9 +66,9 @@ export function AddButton({ onClick, compact }: { onClick: () => void; compact?:
   return (
     <button type="button" onClick={onClick} className={`lib-add${compact ? " is-compact" : ""}`}>
       <MarkStack size={compact ? 22 : 26} />
-      <span className="min-w-0 text-left">
-        <span className="lib-add-title">Add articles</span>
-        {!compact && <span className="lib-add-sub">Connect an agent, or paste links</span>}
+      <span className="min-w-0 text-start">
+        <span className="lib-add-title">ماقالە قوشۇش</span>
+        {!compact && <span className="lib-add-sub">ۋاكالەتچى ئۇلاڭ ياكى ئۇلانما چاپلاڭ</span>}
       </span>
       {!compact && (
         <span className="lib-add-plus" aria-hidden>
@@ -106,7 +106,7 @@ function Links() {
 
   const fromExport = async (f: File) => {
     const found = linksIn(await f.text().catch(() => ""));
-    if (!found.length) return setNote(`No links found in ${f.name}.`);
+    if (!found.length) return setNote(`${f.name} دا ئۇلانما تېپىلمىدى.`);
     setText((cur) => [cur.trim(), ...found].filter(Boolean).join("\n"));
     setNote(`Found ${found.length} link${found.length === 1 ? "" : "s"} in ${f.name}.`);
   };
@@ -125,7 +125,7 @@ function Links() {
     setText(rest.join("\n"));
     setNote(
       all.length > BATCH
-        ? [rest.length ? `Saving ${BATCH} now; ${rest.length} more wait above for the next Save.` : `Saving ${fresh.length}.`, known ? `${known} already in your library.` : ""].filter(Boolean).join(" ")
+        ? [rest.length ? `ھازىر ${BATCH} نى ساقلاۋاتىدۇ؛ يەنە ${rest.length} سى كېيىنكى ساقلاشنى كۈتۈۋاتىدۇ.` : `${fresh.length} نى ساقلاۋاتىدۇ.`, known ? `${known} ئاللىبۇرۇن كۈتۈپخانىڭىزدا.` : ""].filter(Boolean).join(" ")
         : null
     );
     const set = (i: number, r: Partial<Row>) => setRows((cur) => cur.map((x, j) => (j === i ? { ...x, ...r } : x)));
@@ -145,11 +145,11 @@ function Links() {
 
   return (
     <div className="mt-5">
-      <p className="text-[19px] font-serif leading-tight text-ink">Save links to your library</p>
+      <p className="text-[19px] font-serif leading-tight text-ink">ئۇلانمىلارنى كۈتۈپخانىڭىزغا ساقلاڭ</p>
       <p className="mt-1 text-[13px] text-ink-3">
-        One or many, a line each. Gloss reads each page in and sorts it onto a topic. PDFs work too. Leaving Pocket, Instapaper or Raindrop?{" "}
+        بىر ياكى كۆپ، ھەر قۇرغا بىرى. Gloss ھەر بەتنى ئوقۇپ تېمىغا ئايرىيدۇ. PDF مۇ بولىدۇ. Pocket، Instapaper ياكى Raindrop دىن كېتىۋاتامسىز؟{" "}
         <button type="button" onClick={() => fileRef.current?.click()} className="text-ink-2 underline decoration-rule-strong underline-offset-2 hover:text-ink">
-          Drop its export here
+          چىقىرىلغان ھۆججىتىنى بۇ يەرگە تاشلاڭ
         </button>
         .
       </p>
@@ -191,13 +191,13 @@ function Links() {
         placeholder={"https://paulgraham.com/greatwork.html\nhttps://..."}
         rows={4}
         className="add-text"
-        aria-label="Links to save"
+        aria-label="ساقلايدىغان ئۇلانمىلار"
       />
       <div className="mt-3 flex items-center justify-between gap-3">
-        <span className="text-[12.5px] text-ink-4">{urls.length ? `${urls.length} link${urls.length === 1 ? "" : "s"}` : text.trim() ? "No links found yet" : ""}</span>
+        <span className="text-[12.5px] text-ink-4">{urls.length ? `${urls.length} link${urls.length === 1 ? "" : "s"}` : text.trim() ? "تېخى ئۇلانما تېپىلمىدى" : ""}</span>
         <button type="button" onClick={save} disabled={!urls.length || busy} className="add-btn">
           {busy && <Loader2 size={14} className="animate-spin" />}
-          {busy ? "Saving" : urls.length > 1 ? `Save ${Math.min(urls.length, BATCH)}` : "Save"}
+          {busy ? "ساقلاۋاتىدۇ" : urls.length > 1 ? `${Math.min(urls.length, BATCH)} نى ساقلاش` : "ساقلاش"}
         </button>
       </div>
       {note && <p className="mt-2 text-[12.5px] text-ink-3">{note}</p>}
@@ -211,7 +211,7 @@ function Links() {
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13.5px] text-ink">{r.title ?? r.url.replace(/^https?:\/\/(www\.)?/, "")}</span>
                 <span className="block truncate text-[12px] text-ink-3">
-                  {r.state === "saved" ? "On the shelf" : r.state === "already" ? "Already in your library" : r.state === "failed" ? r.error : r.state === "reading" ? "Reading" : "Waiting"}
+                  {r.state === "saved" ? "جاۋىدا" : r.state === "already" ? "ئاللىبۇرۇن كۈتۈپخانىڭىزدا" : r.state === "failed" ? r.error : r.state === "reading" ? "ئوقۇۋاتىدۇ" : "كۈتۈۋاتىدۇ"}
                 </span>
               </span>
             </li>
@@ -241,20 +241,20 @@ function Bookmarklets() {
   const pill = "inline-flex cursor-grab items-center gap-1.5 rounded-full border border-rule-strong bg-bg px-3 py-1.5 text-[13px] font-medium text-ink shadow-[var(--shadow-card)] active:cursor-grabbing";
   return (
     <div className="mt-6 border-t border-rule pt-5">
-      <p className="lib-label">From any page</p>
-      <p className="mt-1 text-[13px] text-ink-3">Drag one to your bookmarks bar, then click it on any article.</p>
+      <p className="lib-label">خالىغان بەتتىن</p>
+      <p className="mt-1 text-[13px] text-ink-3">بىرىنى خەتكۈچ بالدىقىڭىزغا سۆرەپ، خالىغان ماقالىدە چېكىڭ.</p>
       <div className="mt-3 flex flex-wrap gap-2">
-        <a ref={readRef} onClick={(e) => e.preventDefault()} data-tip="Drag me to your bookmarks bar" className={pill}>
-          <BookOpen size={14} className="text-ink-3" /> Read in Gloss
+        <a ref={readRef} onClick={(e) => e.preventDefault()} data-tip="مېنى خەتكۈچ بالدىقىڭىزغا سۆرەڭ" className={pill}>
+          <BookOpen size={14} className="text-ink-3" /> Gloss تا ئوقۇش
         </a>
-        <a ref={saveRef} onClick={(e) => e.preventDefault()} data-tip="Drag me to your bookmarks bar" className={pill}>
-          <BookmarkPlus size={14} className="text-ink-3" /> Save to Gloss
+        <a ref={saveRef} onClick={(e) => e.preventDefault()} data-tip="مېنى خەتكۈچ بالدىقىڭىزغا سۆرەڭ" className={pill}>
+          <BookmarkPlus size={14} className="text-ink-3" /> Gloss قا ساقلاش
         </a>
       </div>
       <details className="mt-3 text-[12.5px] text-ink-3">
-        <summary className="cursor-pointer select-none hover:text-ink-2">On a phone</summary>
+        <summary className="cursor-pointer select-none hover:text-ink-2">تېلېفوندا</summary>
         <div className="mt-2">
-          <CopyBlock title="Bookmark any page, then edit the bookmark" body="Paste this as its address and name it Save to Gloss." text={code("save")} />
+          <CopyBlock title="خالىغان بەتنى خەتكۈچكە قوشۇپ، ئاندىن خەتكۈچنى تەھرىرلەڭ" body="بۇنى ئادرېسى قىلىپ چاپلاپ، ئىسمىنى «Gloss قا ساقلاش» قىلىڭ." text={code("save")} />
         </div>
       </details>
     </div>
@@ -268,7 +268,7 @@ const LABELS: { label: string; mark?: AgentMark }[] = [
   { label: "Grok Bot", mark: "grok" },
   { label: "Claude", mark: "claude" },
   { label: "ChatGPT", mark: "chatgpt" },
-  { label: "Other" },
+  { label: "باشقا" },
 ];
 
 function Agent({ signedIn }: { signedIn: boolean }) {
@@ -291,10 +291,10 @@ function Agent({ signedIn }: { signedIn: boolean }) {
     return (
       <div className="mt-5">
         <AgentIntro />
-        <p className="mt-4 text-[13.5px] text-ink-2">An agent saves to the library in your account, so it needs you signed in.</p>
+        <p className="mt-4 text-[13.5px] text-ink-2">ۋاكالەتچى ھېساباتىڭىزدىكى كۈتۈپخانىغا ساقلايدۇ، شۇڭا كىرىشىڭىز كېرەك.</p>
         <SignInButton mode="modal">
           <button type="button" className="add-btn mt-4">
-            Sign in to connect
+            ئۇلاش ئۈچۈن كىرىڭ
           </button>
         </SignInButton>
       </div>
@@ -306,7 +306,7 @@ function Agent({ signedIn }: { signedIn: boolean }) {
     const res = await fetch("/api/agent-tokens", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ label }) });
     const j = (await res.json().catch(() => ({}))) as { id?: string; token?: string; label?: string; error?: string };
     setBusy(false);
-    if (!res.ok || !j.token || !j.id) return setErr(j.error ?? "Could not make a connection. Try again.");
+    if (!res.ok || !j.token || !j.id) return setErr(j.error ?? "ئۇلىنالمىدى. قايتا سىناڭ.");
     setMade({ token: j.token, label: j.label ?? label });
     setConns((c) => [{ id: j.id!, label: j.label ?? label, createdAt: new Date().toISOString(), lastUsedAt: null }, ...(c ?? [])]);
   };
@@ -323,7 +323,7 @@ function Agent({ signedIn }: { signedIn: boolean }) {
         <Setup token={made.token} label={made.label} origin={origin} />
       ) : (
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <div className="lib-sort !ml-0" role="radiogroup" aria-label="Which agent">
+          <div className="lib-sort !ml-0" role="radiogroup" aria-label="قايسى ۋاكالەتچى">
             {LABELS.map((l) => (
               <button key={l.label} type="button" role="radio" aria-checked={label === l.label} onClick={() => setLabel(l.label)} className="inline-flex items-center gap-1.5">
                 {l.mark && <Mark k={l.mark} size={14} />}
@@ -333,25 +333,25 @@ function Agent({ signedIn }: { signedIn: boolean }) {
           </div>
           <button type="button" onClick={create} disabled={busy} className="add-btn">
             {busy && <Loader2 size={14} className="animate-spin" />}
-            Make a connection
+            ئۇلىنىش قۇرۇش
           </button>
           {err && <p className="w-full text-[12.5px] text-rubric-text">{err}</p>}
         </div>
       )}
       {conns && conns.length > 0 && (
         <div className="mt-6">
-          <p className="lib-label">Connected</p>
+          <p className="lib-label">ئۇلانغان</p>
           <ul className="mt-2 divide-y divide-rule">
             {conns.map((c) => (
               <li key={c.id} className="flex items-center gap-3 py-2.5 text-[13px]">
                 <span className="min-w-0 flex-1">
                   <span className="font-medium text-ink">{c.label}</span>
-                  <span className="ml-2 text-ink-3">
-                    {c.lastUsedAt ? `last used ${new Date(c.lastUsedAt).toLocaleDateString("en-GB", { day: "numeric", month: "short" })}` : "not used yet"}
+                  <span className="ms-2 text-ink-3">
+                    {c.lastUsedAt ? `ئاخىرقى ئىشلىتىلگەن ۋاقىت: ${new Date(c.lastUsedAt).toLocaleDateString("ug-CN", { day: "numeric", month: "short" })}` : "تېخى ئىشلىتىلمىگەن"}
                   </span>
                 </span>
                 <button type="button" onClick={() => revoke(c.id)} className="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12.5px] text-ink-3 transition-colors hover:bg-sunk hover:text-ink">
-                  <Trash2 size={13} /> Revoke
+                  <Trash2 size={13} /> بىكار قىلىش
                 </button>
               </li>
             ))}
@@ -367,40 +367,40 @@ function AgentIntro() {
     <div className="flex items-start gap-3.5">
       <Glyph k="agent" size={46} className="shrink-0" />
       <div>
-        <p className="font-serif text-[19px] leading-tight text-ink">Let your agent shelve for you</p>
+        <p className="font-serif text-[19px] leading-tight text-ink">ۋاكالەتچىڭىز سىز ئۈچۈن جاۋىغا قويسۇن</p>
         <p className="mt-1 text-[13px] leading-[1.5] text-ink-3">
-          Gloss has an MCP server. Give it to Grok Bot, Claude or ChatGPT, then ask: &ldquo;go through my X bookmarks from this month and save the articles to my Gloss library.&rdquo; Each one is read in, sorted onto a topic, and on your shelves the next time you open Gloss.
+          Gloss نىڭ MCP مۇلازىمېتىرى بار. ئۇنى Grok Bot، Claude ياكى ChatGPT غا بېرىپ، مۇنداق سوراڭ: «بۇ ئايدىكى X خەتكۈچلىرىمنى كۆرۈپ چىقىپ، ماقالىلەرنى Gloss كۈتۈپخانامغا ساقلا.» ھەربىرى ئوقۇلۇپ، تېمىغا ئايرىلىپ، كېيىنكى قېتىم Gloss نى ئاچقىنىڭىزدا جاۋىلىرىڭىزدا بولىدۇ.
         </p>
       </div>
     </div>
   );
 }
 
-const PROMPT = "Go through my X bookmarks from the last month, find the ones that link to articles, essays or papers, and save those links to my Gloss library.";
+const PROMPT = "ئۆتكەن ئايدىكى X خەتكۈچلىرىمنى كۆرۈپ چىقىپ، ماقالە، ئەسەر ياكى ئىلمىي ماقالىلەرگە ئۇلانغانلىرىنى تېپىپ، شۇ ئۇلانمىلارنى Gloss كۈتۈپخانامغا ساقلا.";
 
 function Setup({ token, label, origin }: { token: string; label: string; origin: string }) {
   const url = `${origin}/mcp`;
   const steps: { title: string; body: string; copy: string }[] =
     label === "Grok Bot" || label === "Grok"
       ? [
-          { title: "Grok Bot: say this in a chat", body: "It asks you to confirm; then the Gloss tools are ready.", copy: `Add a custom MCP server called Gloss at ${url} with the header Authorization set to Bearer ${token}` },
+          { title: "Grok Bot: سۆھبەتتە بۇنى دەڭ", body: "ئۇ جەزملەشتۈرۈشنى سورايدۇ؛ ئاندىن Gloss قوراللىرى تەييار بولىدۇ.", copy: `Add a custom MCP server called Gloss at ${url} with the header Authorization set to Bearer ${token}` },
         ]
       : label === "Claude"
         ? [
-            { title: "Claude Code: run this", body: "Then ask Claude to save something to your Gloss library.", copy: `claude mcp add --transport http gloss ${url} --header "Authorization: Bearer ${token}"` },
-            { title: "Or claude.ai: Settings, Connectors, Add custom connector", body: "This link carries your token, so keep it private.", copy: `${url}/${token}` },
+            { title: "Claude Code: بۇنى ئىجرا قىلىڭ", body: "ئاندىن Claude دىن Gloss كۈتۈپخانىڭىزغا بىرەر نەرسە ساقلاشنى سوراڭ.", copy: `claude mcp add --transport http gloss ${url} --header "Authorization: Bearer ${token}"` },
+            { title: "ياكى claude.ai: Settings ← Connectors ← Add custom connector", body: "بۇ ئۇلانمىدا توكېنىڭىز بار، شۇڭا مەخپىي ساقلاڭ.", copy: `${url}/${token}` },
           ]
         : [
-            { title: "The server URL and a header", body: `URL ${url}, and this header:`, copy: `Authorization: Bearer ${token}` },
-            { title: "Or, for apps that only take a URL, one with your token in it", body: "Keep it private: it can end up in logs.", copy: `${url}/${token}` },
+            { title: "مۇلازىمېتىر URL ى ۋە بىر header", body: `URL: ${url}، ۋە بۇ header:`, copy: `Authorization: Bearer ${token}` },
+            { title: "ياكى پەقەت URL قوبۇل قىلىدىغان ئەپلەر ئۈچۈن، توكېن بار URL", body: "مەخپىي ساقلاڭ: خاتىرىلەرگە چۈشۈپ قېلىشى مۇمكىن.", copy: `${url}/${token}` },
           ];
   return (
     <div className="mt-5 space-y-3">
-      <p className="text-[13px] text-good">Made. This token is shown once: copy it now.</p>
+      <p className="text-[13px] text-good">قۇرۇلدى. بۇ توكېن پەقەت بىرلا قېتىم كۆرسىتىلىدۇ: ھازىرلا كۆچۈرۈڭ.</p>
       {steps.map((s) => (
         <CopyBlock key={s.title} title={s.title} body={s.body} text={s.copy} />
       ))}
-      <CopyBlock title="Then ask it something like" body="Agents save the article a post links to. When the post is the piece, like an X Article or a long post, they send its text." text={PROMPT} />
+      <CopyBlock title="ئاندىن مۇنداق سوراڭ" body="ۋاكالەتچىلەر يازما ئۇلانغان ماقالىنى ساقلايدۇ. يازمىنىڭ ئۆزى ئەسەر بولسا، مەسىلەن X Article ياكى ئۇزۇن يازما، ئۇنىڭ تېكىستىنى ئەۋەتىدۇ." text={PROMPT} />
     </div>
   );
 }
@@ -426,7 +426,7 @@ function CopyBlock({ title, body, text }: { title: string; body: string; text: s
           className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-sunk px-2.5 py-1 text-[12px] font-medium text-ink-2 transition-colors hover:text-ink"
         >
           {copied ? <Check size={12} className="text-good" /> : <Copy size={12} />}
-          {copied ? "Copied" : "Copy"}
+          {copied ? "كۆچۈرۈلدى" : "كۆچۈرۈش"}
         </button>
       </div>
       <pre className="mt-2 overflow-x-auto whitespace-pre-wrap break-all rounded-lg bg-sunk px-2.5 py-2 text-[11.5px] leading-relaxed text-ink-2">{text}</pre>

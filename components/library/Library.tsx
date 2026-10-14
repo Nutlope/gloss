@@ -242,7 +242,7 @@ export function Library() {
 
   const openBook = open ? books.find((b) => b.id === open.id) ?? null : null;
   const first = user?.firstName;
-  const owner = user?.fullName || first || "A Gloss reader";
+  const owner = user?.fullName || first || "Gloss ئوقۇرمىنى";
   const T = topic ? TOPIC[topic] : null;
   const topicBooks = useMemo(() => (topic ? books.filter((b) => b.topic === topic).sort((a, b) => b.added - a.added).filter(match) : []), [topic, books, match]);
   const screen = topic ? `topic-${topic}` : view;
@@ -250,9 +250,9 @@ export function Library() {
   const searchBox = (
     <label className="lib-search">
       <Search size={15} className="shrink-0 text-ink-4" aria-hidden />
-      <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={T ? `Search ${T.name}` : "Search the library"} aria-label="Search the library" />
+      <input ref={searchRef} value={q} onChange={(e) => setQ(e.target.value)} placeholder={T ? `Search ${T.name}` : "كۈتۈپخانىدىن ئىزدەش"} aria-label="كۈتۈپخانىدىن ئىزدەش" />
       {q ? (
-        <button type="button" aria-label="Clear search" onClick={() => setQ("")} className="grid size-5 place-items-center rounded-full text-ink-3 hover:bg-sunk">
+        <button type="button" aria-label="ئىزدەشنى تازىلاش" onClick={() => setQ("")} className="grid size-5 place-items-center rounded-full text-ink-3 hover:bg-sunk">
           <X size={13} />
         </button>
       ) : (
@@ -283,13 +283,13 @@ export function Library() {
           <section className="lib-hero">
             <div className="lib-hero-row">
               <div className="min-w-0">
-                <h1 className="lib-title">{first ? `${first}'s library` : "Your library"}</h1>
+                <h1 className="lib-title">{first ? `${first}'s library` : "كۈتۈپخانىڭىز"}</h1>
                 {/* Its height is kept while the shelf is read, so the tools below never jump. */}
                 <p className="lib-stats">
                   {hydrated && (
                     <>
                       <span>
-                        <b>{stats.count}</b> {stats.count === 1 ? "text" : "texts"}
+                        <b>{stats.count}</b> تېكىست
                       </span>
                       {stats.topics > 0 && (
                         <span>
@@ -297,16 +297,16 @@ export function Library() {
                         </span>
                       )}
                       <span>
-                        <b>{stats.hours}</b> {stats.hours === 1 ? "hour" : "hours"} of reading
+                        <b>{stats.hours}</b> سائەت ئوقۇش
                       </span>
                       {stats.reading > 0 && (
                         <span>
-                          <b>{stats.reading}</b> in progress
+                          <b>{stats.reading}</b> ئوقۇلۇۋاتىدۇ
                         </span>
                       )}
                       {stats.read > 0 && (
                         <span>
-                          <b>{stats.read}</b> read
+                          <b>{stats.read}</b> ئوقۇلدى
                         </span>
                       )}
                     </>
@@ -318,7 +318,7 @@ export function Library() {
             {fromAgent.length > 0 && (
               <button type="button" className="lib-news" onClick={() => (setTag("agent"), setOnly(null), go({ view: "shelf" }))}>
                 <Glyph k="agent" size={22} />
-                {fromAgent.length} new from your agent since you last looked
+                ئاخىرقى قېتىم كۆرگىنىڭىزدىن بۇيان ۋاكالەتچىڭىزدىن {fromAgent.length} يېڭى
               </button>
             )}
           </section>
@@ -327,7 +327,7 @@ export function Library() {
         {T ? (
           <div className="lib-tools is-topic">
             <button type="button" onClick={() => go({ view: "topics" })} className="lib-back">
-              <ChevronLeft size={16} /> All topics
+              <ChevronLeft size={16} /> بارلىق تېمىلار
             </button>
             <AddButton compact onClick={() => setAdding("agent")} />
           </div>
@@ -336,8 +336,8 @@ export function Library() {
             <ViewSwitch view={view} onChange={(v) => go({ view: v })} />
             {searchBox}
             {view === "shelf" && (
-              <div className="lib-sort" role="radiogroup" aria-label="Arrange by">
-                <span className="px-2 text-[12.5px] text-ink-4 max-md:hidden">Arrange by</span>
+              <div className="lib-sort" role="radiogroup" aria-label="تەرتىپلەش">
+                <span className="px-2 text-[12.5px] text-ink-4 max-md:hidden">تەرتىپلەش</span>
                 {SORTS.map((s) => (
                   <button key={s.key} type="button" role="radio" aria-checked={sort === s.key} onClick={() => setSort(s.key)}>
                     {s.label}
@@ -349,9 +349,9 @@ export function Library() {
         )}
 
         {view === "shelf" && !T && (
-          <ChipRow label="Filter">
+          <ChipRow label="سۈزگۈچ">
             <Chip on={!only && !tag} onClick={() => (setOnly(null), setTag(null))}>
-              All <span className="lib-n">{books.length}</span>
+              ھەممىسى <span className="lib-n">{books.length}</span>
             </Chip>
             {topics.map(({ topic: t, books: bs }) => (
               <Chip key={t.key} on={only === t.key} color={t.shades[0]} onClick={() => setOnly(only === t.key ? null : t.key)}>
@@ -391,12 +391,12 @@ export function Library() {
                   />
                 )}
                 {hydrated && shown.size === 0 && books.length > 0 && (
-                  <p className="py-6 text-center text-[14px] text-ink-3">Nothing on the shelves matches{q ? <> &ldquo;{q}&rdquo;</> : ""}.</p>
+                  <p className="py-6 text-center text-[14px] text-ink-3">جاۋىلاردا ماس كېلىدىغىنى يوق{q ? <> &ldquo;{q}&rdquo;</> : ""}.</p>
                 )}
                 {hydrated && own.length < SAMPLES_UNTIL ? (
                   <Starter count={own.length} signedIn={Boolean(isSignedIn)} onAdd={setAdding} />
                 ) : (
-                  hydrated && <p className="lib-hint">Click a spine to take it down. Arrow keys walk the shelf.</p>
+                  hydrated && <p className="lib-hint">ئېلىش ئۈچۈن كىتاب دۈمبىسىنى چېكىڭ. يا ئوق كۇنۇپكىلىرى جاۋىدا يۆتكىلىدۇ.</p>
                 )}
               </>
             ) : (
@@ -461,7 +461,7 @@ function bylineOf(x: { author?: string; source?: string; origin?: string }): str
   if (x.author) return x.author;
   const src = x.source?.split(",")[0].trim();
   if (src) return src.replace(/^www\./, "").replace(/\.(pdf|txt|md|markdown)$/i, "").replace(/\.(com|org|net|io|ai|dev|co|edu|blog|app)(\.[a-z]{2})?$/i, "");
-  return x.origin === "paste" ? "Pasted text" : x.origin === "file" ? "A file" : "Saved";
+  return x.origin === "paste" ? "چاپلانغان تېكىست" : x.origin === "file" ? "ھۆججەت" : "ساقلانغان";
 }
 
 /**
@@ -498,10 +498,10 @@ function ChipRow({ label, children }: { label: string; children: React.ReactNode
       <div ref={ref} className="lib-chips no-scrollbar" role="group" aria-label={label}>
         {children}
       </div>
-      <button type="button" className="lib-chip-page is-l" aria-label="Scroll filters left" tabIndex={-1} onClick={() => page(-1)}>
+      <button type="button" className="lib-chip-page is-l" aria-label="سۈزگۈچلەرنى سولغا سۈرۈش" tabIndex={-1} onClick={() => page(-1)}>
         <ChevronLeft size={15} />
       </button>
-      <button type="button" className="lib-chip-page is-r" aria-label="Scroll filters right" tabIndex={-1} onClick={() => page(1)}>
+      <button type="button" className="lib-chip-page is-r" aria-label="سۈزگۈچلەرنى ئوڭغا سۈرۈش" tabIndex={-1} onClick={() => page(1)}>
         <ChevronRight size={15} />
       </button>
     </div>
@@ -518,13 +518,13 @@ function Chip({ on, color, onClick, children }: { on: boolean; color?: string; o
 
 function ViewSwitch({ view, onChange }: { view: View; onChange: (v: View) => void }) {
   return (
-    <div className="lib-switch" role="radiogroup" aria-label="View" data-view={view}>
+    <div className="lib-switch" role="radiogroup" aria-label="كۆرۈنۈش" data-view={view}>
       <span className="lib-switch-pill" aria-hidden />
       <button type="button" role="radio" aria-checked={view === "shelf"} onClick={() => onChange("shelf")}>
-        <LibraryIcon size={15} /> Shelf
+        <LibraryIcon size={15} /> جاۋا
       </button>
       <button type="button" role="radio" aria-checked={view === "topics"} onClick={() => onChange("topics")}>
-        <LayoutGrid size={15} /> Topics
+        <LayoutGrid size={15} /> تېمىلار
       </button>
     </div>
   );

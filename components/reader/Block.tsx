@@ -141,7 +141,7 @@ function Picture({ src, alt }: { src: string; alt?: string }) {
 function Table({ rows, head }: { rows: string[][]; head?: boolean }) {
   const body = head ? rows.slice(1) : rows;
   return (
-    <div className="tbl scroll-thin" tabIndex={0} role="region" aria-label="Table">
+    <div className="tbl scroll-thin" tabIndex={0} role="region" aria-label="جەدۋەل">
       <table>
         {head && (
           <thead>
@@ -183,8 +183,8 @@ function BlockImpl({ block, n, first, marks, activeGloss, hoverGloss, activeHigh
           type="button"
           className="pnum"
           onClick={() => onAsk(block.id)}
-          aria-label={`Ask about paragraph ${n}`}
-          data-tip={`Ask about \u00b6${n}`}
+          aria-label={`${n}-ئابزاس ھەققىدە سوراش`}
+          data-tip={`\u00b6${n} ھەققىدە سوراش`}
           data-tip-side="left"
         >
           {hasAt && <span className="pnum-dot" aria-hidden />}

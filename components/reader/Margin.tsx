@@ -213,7 +213,7 @@ export function Margin({
           onClick={() => onOpenNote(h)}
           className={`mnote${active === h.id ? " is-active" : ""}`}
           style={{ ...marginStyle(layout.tops[h.id], !placed.current.has(h.id)), ["--note-c" as string]: MARKERS.find((m) => m.key === (h.color ?? "yellow"))?.color }}
-          aria-label={`Your note: ${h.note}. Edit note.`}
+          aria-label={`خاتىرىڭىز: ${h.note}. خاتىرىنى تەھرىرلەش.`}
         >
           <span className="line-clamp-4 whitespace-pre-line">{h.note}</span>
         </button>
@@ -225,11 +225,11 @@ export function Margin({
 function EmptyMargin({ top }: { top: number }) {
   return (
     <div
-      className="rise absolute inset-x-0 border-l-[1.5px] border-rule-strong py-1 pl-[15px] text-[13px] leading-relaxed text-ink-3"
+      className="rise absolute inset-x-0 border-l-[1.5px] border-rule-strong py-1 ps-[15px] text-[13px] leading-relaxed text-ink-3"
       style={{ top, animationDelay: "500ms" }}
     >
-      <p className="font-medium text-ink-2">This area is for notes.</p>
-      <p className="mt-1">Select any passage, then just start typing to ask.</p>
+      <p className="font-medium text-ink-2">بۇ رايون خاتىرە ئۈچۈن.</p>
+      <p className="mt-1">خالىغان بۆلەكنى تاللاپ، سوراش ئۈچۈن يېزىشنى باشلاڭ.</p>
     </div>
   );
 }

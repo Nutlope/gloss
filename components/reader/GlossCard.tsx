@@ -52,12 +52,12 @@ function KeyButton() {
         onClick={openKeyMenu}
         className="inline-flex h-8 items-center rounded-full bg-ink px-3.5 text-[12.5px] font-medium text-bg transition-transform active:scale-[0.97]"
       >
-        Add your Together key
+        Together ئاچقۇچىڭىزنى قوشۇڭ
       </button>
       <Show when="signed-out">
         <SignInButton mode="modal">
           <button type="button" className="inline-flex h-8 items-center rounded-full border border-rule px-3.5 text-[12.5px] font-medium text-ink-2 transition-colors hover:border-rule-strong hover:text-ink">
-            Sign in
+            كىرىش
           </button>
         </SignInButton>
       </Show>
@@ -88,7 +88,7 @@ function TurnBody({ t }: { t: Turn }) {
   if (t.streaming && !t.content)
     return (
       <>
-        {t.searching && <p className="mb-2 text-[12.5px] text-ink-3">Searching the web</p>}
+        {t.searching && <p className="mb-2 text-[12.5px] text-ink-3">توردىن ئىزدەۋاتىدۇ</p>}
         <Writing />
       </>
     );
@@ -116,7 +116,7 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
   const blockId = gloss.anchor?.start.b ?? gloss.at;
   const n = blockId ? ix.numbers.get(blockId) : undefined;
   const nEnd = gloss.anchor ? ix.numbers.get(gloss.anchor.end.b) : undefined;
-  const label = gloss.anchor ? ACTIONS[gloss.action].label : "Whole text";
+  const label = gloss.anchor ? ACTIONS[gloss.action].label : "پۈتۈن تېكىست";
 
   useEffect(() => {
     if (entering) {
@@ -154,7 +154,7 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
       <article
         ref={ref}
         data-gloss={gloss.id}
-        aria-label={`${gloss.question ?? label}${n ? `, paragraph ${n}` : ""}. Open note.`}
+        aria-label={`${gloss.question ?? label}${n ? `، ${n}-ئابزاس` : ""}. خاتىرىنى ئېچىش.`}
         role="button"
         tabIndex={0}
         className={["gloss is-collapsed", mini ? "is-mini" : "", hover ? "is-hover" : "", entering ? "is-entering" : ""].join(" ")}
@@ -194,7 +194,7 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
     <article
       ref={ref}
       data-gloss={gloss.id}
-      aria-label={`${label} note${n ? ` on paragraph ${n}` : ""}`}
+      aria-label={`${label} خاتىرىسى${n ? `، ${n}-ئابزاس` : ""}`}
       className={[
         variant === "margin" ? "gloss" : "gloss !relative !transform-none",
         active ? "is-active" : "",
@@ -215,8 +215,8 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
               e.stopPropagation();
               if (blockId) jumpToBlock(blockId);
             }}
-            aria-label={`Go to paragraph ${n}`}
-            data-tip="Show in the text"
+            aria-label={`${n}-ئابزاسقا بېرىش`}
+            data-tip="تېكىستتە كۆرسىتىش"
           >
             {where}
           </button>
@@ -225,14 +225,14 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
         {variant === "margin" && (
           <button
             type="button"
-            aria-label="Collapse note"
-            data-tip="Collapse"
+            aria-label="خاتىرىنى يىغىش"
+            data-tip="يىغىش"
             data-tip-kbd="Esc"
             onClick={(e) => {
               e.stopPropagation();
               setUI({ activeGloss: null });
             }}
-            className="-mr-1.5 ml-auto grid size-6 place-items-center rounded-md text-ink-4 transition-colors hover:bg-sunk hover:text-ink"
+            className="-me-1.5 ms-auto grid size-6 place-items-center rounded-md text-ink-4 transition-colors hover:bg-sunk hover:text-ink"
           >
             <ChevronsDownUp size={14} />
           </button>
@@ -240,7 +240,7 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
       </header>
 
       {gloss.anchor && gloss.action !== "ask" && (
-        <p className="mb-2.5 line-clamp-2 border-l-2 border-[var(--rubric-line)] pl-2.5 font-serif text-[15px] leading-snug text-ink-3">{gloss.anchor.quote}</p>
+        <p className="mb-2.5 line-clamp-2 border-l-2 border-[var(--rubric-line)] ps-2.5 font-serif text-[15px] leading-snug text-ink-3">{gloss.anchor.quote}</p>
       )}
       {gloss.question && <p className="mb-1.5 text-[14px] font-medium leading-snug text-ink">{gloss.question}</p>}
 
@@ -268,19 +268,19 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
               <Receipt t={last.role === "assistant" ? last : first} />
             </span>
             {busy ? (
-              <IconBtn label="Stop" onClick={() => stopGloss(gloss.id)}>
+              <IconBtn label="توختىتىش" onClick={() => stopGloss(gloss.id)}>
                 <Square size={12} fill="currentColor" />
               </IconBtn>
             ) : (
               <>
-                <IconBtn label="Try again" onClick={() => retry(ix, gloss.id)}>
+                <IconBtn label="قايتا سىناش" onClick={() => retry(ix, gloss.id)}>
                   <RotateCcw size={14} />
                 </IconBtn>
-                <IconBtn label={copied ? "Copied" : "Copy"} onClick={copy}>
+                <IconBtn label={copied ? "كۆچۈرۈلدى" : "كۆچۈرۈش"} onClick={copy}>
                   {copied ? <Check size={14} className="text-good" /> : <Copy size={14} />}
                 </IconBtn>
                 <IconBtn
-                  label="Delete"
+                  label="ئۆچۈرۈش"
                   onClick={() => {
                     stopGloss(gloss.id);
                     removeGloss(gloss.articleId, gloss.id);
@@ -309,15 +309,15 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
                   inputRef.current?.blur();
                 }
               }}
-              placeholder="Ask a follow-up"
-              aria-label="Ask a follow-up"
+              placeholder="داۋاملىق سوراش"
+              aria-label="داۋاملىق سوراش"
               className="h-9 min-w-0 flex-1 bg-transparent text-[13.5px] text-ink outline-none focus-visible:outline-none placeholder:text-ink-4"
             />
             <button
               type="submit"
               disabled={!draft.trim() || busy}
-              aria-label="Send follow-up"
-              data-tip="Send"
+              aria-label="داۋاملىق سوئال ئەۋەتىش"
+              data-tip="ئەۋەتىش"
               data-tip-kbd={"\u21b5"}
               className="grid size-6 place-items-center rounded-md bg-ink text-bg transition-opacity disabled:opacity-20"
             >
@@ -333,7 +333,7 @@ export const GlossCard = forwardRef<HTMLElement, Props>(function GlossCard({ glo
 /** The closed note's second line: the key answer, or the pen still writing. */
 function Gist({ t }: { t: Turn }) {
   if (t.error && !t.content) return <p className="mt-1 line-clamp-1 text-[13px] leading-[1.45] text-rubric-text">{t.error}</p>;
-  if (t.streaming && !t.content) return <span className="writing-line mt-2 block" aria-label="Writing" role="status" />;
+  if (t.streaming && !t.content) return <span className="writing-line mt-2 block" aria-label="يېزىۋاتىدۇ" role="status" />;
   const line = keyLine(t.content);
   return line ? <p className="mt-1 line-clamp-2 text-[13px] leading-[1.45] text-ink-3">{line}</p> : null;
 }

@@ -3,18 +3,18 @@ import type { ModelKey } from "./models";
 /** Highlighter colours. */
 export type Marker = "yellow" | "green" | "blue" | "pink";
 export const MARKERS: { key: Marker; label: string; color: string }[] = [
-  { key: "yellow", label: "Yellow", color: "#f2c438" },
-  { key: "green", label: "Green", color: "#7cc66f" },
-  { key: "blue", label: "Blue", color: "#6aa8f0" },
-  { key: "pink", label: "Pink", color: "#f084ac" },
+  { key: "yellow", label: "سېرىق", color: "#f2c438" },
+  { key: "green", label: "يېشىل", color: "#7cc66f" },
+  { key: "blue", label: "كۆك", color: "#6aa8f0" },
+  { key: "pink", label: "ھالرەڭ", color: "#f084ac" },
 ];
 
 /** Reading faces. Literata and Atkinson load only when picked. */
 export const FACES: { key: Settings["face"]; label: string; css: string }[] = [
   { key: "serif", label: "Serif", css: "var(--font-serif)" },
-  { key: "book", label: "Book", css: "var(--font-book)" },
+  { key: "book", label: "كىتاب", css: "var(--font-book)" },
   { key: "sans", label: "Sans", css: "var(--font-sans)" },
-  { key: "legible", label: "Legible", css: "var(--font-legible)" },
+  { key: "legible", label: "ئوقۇشلۇق", css: "var(--font-legible)" },
 ];
 
 /** Everything a reader can tune. Applied to <html> as data attributes and CSS variables. */
@@ -61,19 +61,19 @@ export const DEFAULT_SETTINGS: Settings = {
 
 /** Swatch colours for the settings panel. The real palettes live in globals.css. */
 export const THEMES: { key: Settings["theme"]; label: string; bg: string; fg: string; dark: boolean }[] = [
-  { key: "auto", label: "Auto", bg: "#f6f3ec", fg: "#1d1b18", dark: false },
-  { key: "paper", label: "Paper", bg: "#f6f3ec", fg: "#1d1b18", dark: false },
-  { key: "sepia", label: "Sepia", bg: "#f1e6cf", fg: "#33281b", dark: false },
-  { key: "snow", label: "Snow", bg: "#ffffff", fg: "#141518", dark: false },
-  { key: "night", label: "Night", bg: "#151412", fg: "#e9e3d6", dark: true },
-  { key: "ink", label: "Ink", bg: "#0f1319", fg: "#e3e8f0", dark: true },
+  { key: "auto", label: "ئاپتوماتىك", bg: "#f6f3ec", fg: "#1d1b18", dark: false },
+  { key: "paper", label: "قەغەز", bg: "#f6f3ec", fg: "#1d1b18", dark: false },
+  { key: "sepia", label: "سېپىيا", bg: "#f1e6cf", fg: "#33281b", dark: false },
+  { key: "snow", label: "قار", bg: "#ffffff", fg: "#141518", dark: false },
+  { key: "night", label: "كېچە", bg: "#151412", fg: "#e9e3d6", dark: true },
+  { key: "ink", label: "سىياھ", bg: "#0f1319", fg: "#e3e8f0", dark: true },
 ];
 
 export const PENS: { key: Settings["pen"]; label: string; light: string; dark: string }[] = [
-  { key: "vermilion", label: "Vermilion", light: "#c1401b", dark: "#ef7a50" },
-  { key: "cobalt", label: "Cobalt", light: "#2c58c9", dark: "#86a8ff" },
-  { key: "moss", label: "Moss", light: "#3b7a3d", dark: "#8fc68c" },
-  { key: "graphite", label: "Graphite", light: "#4b4a47", dark: "#cfc9bd" },
+  { key: "vermilion", label: "قىزىل", light: "#c1401b", dark: "#ef7a50" },
+  { key: "cobalt", label: "كوبالت", light: "#2c58c9", dark: "#86a8ff" },
+  { key: "moss", label: "موخ", light: "#3b7a3d", dark: "#8fc68c" },
+  { key: "graphite", label: "گرافىت", light: "#4b4a47", dark: "#cfc9bd" },
 ];
 
 export const LEADING: Record<Settings["leading"], number> = { tight: 1.5, normal: 1.64, loose: 1.82 };

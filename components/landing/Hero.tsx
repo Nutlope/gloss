@@ -9,9 +9,9 @@ export function Hero({ children }: { children: ReactNode }) {
     <section className="mx-auto flex w-full max-w-[980px] flex-col items-center px-6 text-center sm:px-10">
       <h1 className="hero-title font-serif text-ink">
         <span className="block">
-          Highlight <span className="hero-mark">any line</span>.
+          <span className="hero-mark">خالىغان قۇرنى</span> بەلگىلەڭ.
         </span>
-        <span className="block">Ask it anything.</span>
+        <span className="block">خالىغاننى سوراڭ.</span>
       </h1>
       {children}
     </section>

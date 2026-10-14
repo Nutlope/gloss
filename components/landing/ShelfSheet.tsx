@@ -24,10 +24,10 @@ export type ShelfItem = {
 type Filter = "all" | "reading" | "unread" | "done";
 
 const FILTERS: { key: Filter; label: string; test: (it: ShelfItem) => boolean }[] = [
-  { key: "all", label: "All", test: () => true },
-  { key: "reading", label: "Reading", test: (it) => it.pct > 0 && it.pct < 1 },
-  { key: "unread", label: "Not started", test: (it) => it.pct === 0 },
-  { key: "done", label: "Finished", test: (it) => it.pct >= 1 },
+  { key: "all", label: "ھەممىسى", test: () => true },
+  { key: "reading", label: "ئوقۇۋاتىدۇ", test: (it) => it.pct > 0 && it.pct < 1 },
+  { key: "unread", label: "باشلانمىغان", test: (it) => it.pct === 0 },
+  { key: "done", label: "تۈگىگەن", test: (it) => it.pct >= 1 },
 ];
 
 /** How far along, as a ring: empty, a pen-coloured arc, or closed with a tick. */
@@ -158,20 +158,20 @@ export function ShelfSheet({
   return createPortal(
     <div className="fixed inset-0 z-[80]" role="presentation">
       <div className="absolute inset-0 bg-ink/20 backdrop-blur-[2px]" style={{ animation: "fade 0.25s both" }} onClick={() => onOpenChange(false)} />
-      <section role="dialog" aria-modal aria-label="Your shelf" className="shelf-sheet">
+      <section role="dialog" aria-modal aria-label="جاۋىنىڭىز" className="shelf-sheet">
         <div className="mx-auto flex h-full w-full max-w-[1040px] flex-col px-5 sm:px-10">
           <header className="flex flex-wrap items-center gap-x-6 gap-y-4 pb-5 pt-7">
             <div className="min-w-0 flex-1">
               <h2 className="flex items-baseline gap-3 font-serif text-[30px] leading-none tracking-[-0.015em] text-ink">
-                Your shelf
+                جاۋىنىڭىز
                 <Link href="/library" className="font-sans text-[13px] tracking-normal text-ink-3 underline decoration-rule-strong underline-offset-4 transition-colors hover:text-ink">
-                  Open the library
+                  كۈتۈپخانىنى ئېچىش
                 </Link>
               </h2>
               <p className="mt-2 text-[13px] text-ink-3">
                 {view === "highlights"
-                  ? `${allHighlights.length} highlight${allHighlights.length === 1 ? "" : "s"} across your texts`
-                  : `${items.length} texts${counts.reading ? ` · ${counts.reading} in progress` : ""}`}
+                  ? `${allHighlights.length} بەلگە، بارلىق تېكىستلىرىڭىزدە`
+                  : `${items.length} تېكىست${counts.reading ? ` · ${counts.reading} ئوقۇلۇۋاتىدۇ` : ""}`}
               </p>
             </div>
             <label className="flex h-10 w-full items-center gap-2 rounded-full border border-rule bg-bg px-3.5 transition-colors focus-within:border-rule-strong sm:w-[300px]">
@@ -180,18 +180,18 @@ export function ShelfSheet({
                 ref={inputRef}
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
-                placeholder={view === "highlights" ? "Search highlights and notes" : "Find a title or author"}
-                aria-label={view === "highlights" ? "Search highlights and notes" : "Find a title or author"}
+                placeholder={view === "highlights" ? "بەلگە ۋە خاتىرىلەرنى ئىزدەش" : "ماۋزۇ ياكى ئاپتور ئىزدەش"}
+                aria-label={view === "highlights" ? "بەلگە ۋە خاتىرىلەرنى ئىزدەش" : "ماۋزۇ ياكى ئاپتور ئىزدەش"}
                 className="h-full min-w-0 flex-1 bg-transparent text-[14px] text-ink outline-none placeholder:text-ink-4 focus-visible:outline-none"
               />
             </label>
-            <div className="-mr-2 flex items-center max-sm:absolute max-sm:right-5 max-sm:top-6">
+            <div className="-me-2 flex items-center max-sm:absolute max-sm:right-5 max-sm:top-6">
               {anyNotes && (
                 <button
                   type="button"
-                  aria-label="Export all notes"
-                  data-tip={exported !== null ? `Exported ${exported} text${exported === 1 ? "" : "s"}` : "Export all notes"}
-                  data-tip-hint={exported !== null ? undefined : "Markdown files, ready for Obsidian"}
+                  aria-label="بارلىق خاتىرىلەرنى چىقىرىش"
+                  data-tip={exported !== null ? `Exported ${exported} text${exported === 1 ? "" : "s"}` : "بارلىق خاتىرىلەرنى چىقىرىش"}
+                  data-tip-hint={exported !== null ? undefined : "Markdown ھۆججەتلىرى، Obsidian ئۈچۈن تەييار"}
                   onClick={async () => setExported(await exportAll())}
                   className="grid size-9 place-items-center rounded-full text-ink-3 transition-colors hover:bg-sunk hover:text-ink"
                 >
@@ -200,8 +200,8 @@ export function ShelfSheet({
               )}
               <button
                 type="button"
-                aria-label="Close"
-                data-tip="Close"
+                aria-label="تاقاش"
+                data-tip="تاقاش"
                 data-tip-kbd="Esc"
                 onClick={() => onOpenChange(false)}
                 className="grid size-9 place-items-center rounded-full text-ink-3 transition-colors hover:bg-sunk hover:text-ink"
@@ -211,7 +211,7 @@ export function ShelfSheet({
             </div>
           </header>
 
-          <div role="radiogroup" aria-label="Show" className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto border-b border-rule px-1 pb-3">
+          <div role="radiogroup" aria-label="كۆرسىتىش" className="no-scrollbar -mx-1 flex gap-1 overflow-x-auto border-b border-rule px-1 pb-3">
             {FILTERS.map((f) => (
               <button
                 key={f.key}
@@ -243,7 +243,7 @@ export function ShelfSheet({
                     view === "highlights" ? "bg-ink text-bg" : "text-ink-3 hover:bg-sunk hover:text-ink"
                   }`}
                 >
-                  Highlights
+                  بەلگىلەر
                   <span className={`tabular-nums ${view === "highlights" ? "text-bg/60" : "text-ink-4"}`}>{allHighlights.length}</span>
                 </button>
               </>
@@ -266,7 +266,7 @@ export function ShelfSheet({
               ))}
               {!shownHighlights.length && (
                 <li className="py-16 text-center text-[14px] text-ink-3">
-                  {q ? <>No highlight or note matches &ldquo;{q}&rdquo;.</> : "No highlights yet."}
+                  {q ? <>«{q}» غا ماس كېلىدىغان بەلگە ياكى خاتىرە يوق.</> : "تېخى بەلگە يوق."}
                 </li>
               )}
             </ul>
@@ -294,7 +294,7 @@ export function ShelfSheet({
                     onOpenChange(false);
                     onOpen(it.id);
                   }}
-                  className="flex items-start gap-3.5 rounded-[12px] px-3 py-3 pr-[4.5rem] transition-colors hover:bg-sunk/70 focus-visible:bg-sunk/70 focus-visible:outline-offset-[-2px]"
+                  className="flex items-start gap-3.5 rounded-[12px] px-3 py-3 pe-[4.5rem] transition-colors hover:bg-sunk/70 focus-visible:bg-sunk/70 focus-visible:outline-offset-[-2px]"
                 >
                   <span className="mt-0.5">
                     <Ring pct={it.pct} />
@@ -302,7 +302,7 @@ export function ShelfSheet({
                   <span className="min-w-0 flex-1">
                     <span className="line-clamp-2 font-serif text-[18px] leading-[1.2] tracking-[-0.01em] text-ink">{tidyTitle(it.title)}</span>
                     <span className="mt-1 flex flex-wrap items-center gap-x-1.5 text-[12.5px] text-ink-3">
-                      {it.sample && <span className="rounded-full border border-dashed border-rule-strong px-1.5 text-[11.5px] leading-[17px] text-ink-3">Sample</span>}
+                      {it.sample && <span className="rounded-full border border-dashed border-rule-strong px-1.5 text-[11.5px] leading-[17px] text-ink-3">ئۈلگە</span>}
                       <span className="max-w-[60%] truncate">{it.byline}</span>
                       <span aria-hidden className="text-ink-4">{"·"}</span>
                       <span className="tabular-nums">{it.pct > 0 && it.pct < 1 ? `${Math.round(it.pct * 100)}% read` : `${readingMinutes(it.words)} min`}</span>
@@ -321,7 +321,7 @@ export function ShelfSheet({
                   <button
                     type="button"
                     aria-label={`Rename ${it.title}`}
-                    data-tip="Rename"
+                    data-tip="ئات ئۆزگەرتىش"
                     onClick={() => setRenaming(it.id)}
                     className="absolute right-10 top-3 grid size-7 place-items-center rounded-full text-ink-4 opacity-0 transition-[opacity,background-color] hover:bg-bg hover:text-ink focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                   >
@@ -330,8 +330,8 @@ export function ShelfSheet({
                 )}
                 <button
                   type="button"
-                  aria-label={it.sample ? `Remove the sample ${it.title}` : `Remove ${it.title} from your shelf`}
-                  data-tip={it.sample ? "Remove this sample" : "Remove from shelf"}
+                  aria-label={it.sample ? `${it.title} ئۈلگىسىنى چىقىرىۋېتىش` : `${it.title} نى جاۋىدىن چىقىرىۋېتىش`}
+                  data-tip={it.sample ? "بۇ ئۈلگىنى چىقىرىۋېتىش" : "جاۋىدىن چىقىرىۋېتىش"}
                   onClick={() => onRemove(it)}
                   className="absolute right-2 top-3 grid size-7 place-items-center rounded-full text-ink-4 opacity-0 transition-[opacity,background-color] hover:bg-bg hover:text-ink focus-visible:opacity-100 group-hover:opacity-100 [@media(hover:none)]:opacity-100"
                 >
@@ -343,7 +343,7 @@ export function ShelfSheet({
             ))}
             {!shown.length && (
               <li className="col-span-full py-16 text-center text-[14px] text-ink-3">
-                {q ? <>Nothing on your shelf matches &ldquo;{q}&rdquo;.</> : "Nothing here yet."}
+                {q ? <>جاۋىڭىزدا «{q}» غا ماس كېلىدىغىنى يوق.</> : "بۇ يەردە تېخى ھېچنېمە يوق."}
               </li>
             )}
           </ul>
@@ -374,7 +374,7 @@ function RenameRow({ title, onDone }: { title: string; onDone: (title: string | 
       <input
         ref={ref}
         defaultValue={title}
-        aria-label="Title"
+        aria-label="ماۋزۇ"
         spellCheck={false}
         onKeyDown={(e) => {
           if (e.key === "Enter") {

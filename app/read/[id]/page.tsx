@@ -14,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const a = sampleById((await params).id);
   if (!a) return { robots: { index: false } };
   const title = `${a.title}, glossed`;
-  const description = a.dek ?? `${a.title}${a.author ? `, by ${a.author}` : ""}. Highlight any line and ask it anything.`;
+  const description = a.dek ?? `${a.title}${a.author ? `، ئاپتورى: ${a.author}` : ""}. خالىغان قۇرنى بەلگىلەپ، ئۇنىڭدىن خالىغاننى سوراڭ.`;
   return {
     title,
     description,

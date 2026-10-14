@@ -35,12 +35,12 @@ export function KeyMenu() {
   }, []);
 
   const spent = house === false || free?.left === 0;
-  const status = key ? "Your key" : spent ? "Add a key" : free && free.left <= 0.25 ? "Low on free use" : null;
+  const status = key ? "ئاچقۇچىڭىز" : spent ? "ئاچقۇچ قوشۇش" : free && free.left <= 0.25 ? "ھەقسىز ئىشلىتىش ئاز قالدى" : null;
 
   return (
     <Popover
-      label="Together API key"
-      tip={key ? "Using your Together key" : "Add your Together key"}
+      label="Together API ئاچقۇچى"
+      tip={key ? "Together ئاچقۇچىڭىز ئىشلىتىلىۋاتىدۇ" : "Together ئاچقۇچىڭىزنى قوشۇڭ"}
       width={320}
       triggerClass={barBtn}
       openOn="gloss:key"
@@ -85,19 +85,19 @@ function KeyPanel({ current, house, free, onSave, close }: { current: string; ho
 
   return (
     <div>
-      <p className="text-[13.5px] font-medium text-ink">Your Together API key</p>
+      <p className="text-[13.5px] font-medium text-ink">Together API ئاچقۇچىڭىز</p>
       <p className="mt-1 text-[12.5px] leading-snug text-ink-3">
         {current
-          ? "Answers and reading aloud use your key, with no daily limit."
+          ? "جاۋاب ۋە ئۈنلۈك ئوقۇش ئاچقۇچىڭىزنى ئىشلىتىدۇ، كۈندىلىك چەك يوق."
           : house && free
-            ? `Free use resets each day${free.signedIn ? "" : ", and signing in doubles it"}. After that, answers need your key. Reading aloud always does.`
-            : "Add your key to start asking."}
+            ? `ھەقسىز ئىشلىتىش ھەر كۈنى يېڭىلىنىدۇ${free.signedIn ? "" : "، كىرسىڭىز ئىككى ھەسسە كۆپىيىدۇ"}. ئۇنىڭدىن كېيىن جاۋابلارغا ئاچقۇچىڭىز كېرەك. ئۈنلۈك ئوقۇشقا ھەمىشە كېرەك.`
+            : "سوراشنى باشلاش ئۈچۈن ئاچقۇچىڭىزنى قوشۇڭ."}
       </p>
       {!current && house && free && (
         <div className="mt-3">
           <div className="flex items-baseline justify-between text-[11.5px] text-ink-3">
-            <span>Free today</span>
-            <span className="tabular-nums">{free.left > 0 ? `${Math.max(1, Math.round(free.left * 100))}% left` : "Used up"}</span>
+            <span>بۈگۈنكى ھەقسىز</span>
+            <span className="tabular-nums">{free.left > 0 ? `${Math.max(1, Math.round(free.left * 100))}% left` : "تۈگىدى"}</span>
           </div>
           <span className="mt-1.5 block h-[3px] overflow-hidden rounded-full bg-rule" aria-hidden>
             <span className="block h-full rounded-full bg-[var(--rubric)] transition-[width] duration-500" style={{ width: `${Math.round(free.left * 100)}%` }} />
@@ -116,14 +116,14 @@ function KeyPanel({ current, house, free, onSave, close }: { current: string; ho
         placeholder="tgp_v1_..."
         autoComplete="off"
         spellCheck={false}
-        aria-label="Together API key"
+        aria-label="Together API ئاچقۇچى"
         className="mt-3 h-9 w-full rounded-lg border border-rule bg-bg px-3 text-[13px] tracking-wide text-ink outline-none focus-visible:outline-none placeholder:text-ink-4 focus:border-rule-strong"
       />
-      {state === "bad" && <p className="mt-2 text-[12.5px] text-rubric-text">Together rejected that key. Check it and try again.</p>}
-      <p className="mt-2 text-[11.5px] leading-snug text-ink-4">Sent with your requests only. Stored in this browser, never on a server, never logged.</p>
+      {state === "bad" && <p className="mt-2 text-[12.5px] text-rubric-text">Together بۇ ئاچقۇچنى رەت قىلدى. تەكشۈرۈپ قايتا سىناڭ.</p>}
+      <p className="mt-2 text-[11.5px] leading-snug text-ink-4">پەقەت تەلەپلىرىڭىز بىلەن ئەۋەتىلىدۇ. بۇ توركۆرگۈدە ساقلىنىدۇ، مۇلازىمېتىردا ساقلانمايدۇ، خاتىرىلەنمەيدۇ.</p>
       <div className="mt-3 flex items-center justify-between">
         <a href={BRAND.keysUrl} target="_blank" rel="noopener noreferrer" className="text-[12.5px] text-rubric-text underline decoration-rule-strong underline-offset-4">
-          Get a key on Together
+          Together دىن ئاچقۇچ ئېلىش
         </a>
         <div className="flex gap-1.5">
           {current && (
@@ -138,7 +138,7 @@ function KeyPanel({ current, house, free, onSave, close }: { current: string; ho
               }}
               className="h-8 rounded-lg px-3 text-[12.5px] font-medium text-ink-2 hover:bg-sunk"
             >
-              Clear
+              تازىلاش
             </button>
           )}
           <button
@@ -147,7 +147,7 @@ function KeyPanel({ current, house, free, onSave, close }: { current: string; ho
             disabled={state === "checking"}
             className="h-8 rounded-lg bg-ink px-3.5 text-[12.5px] font-medium text-bg disabled:opacity-60"
           >
-            {state === "checking" ? "Checking" : "Save"}
+            {state === "checking" ? "تەكشۈرۈۋاتىدۇ" : "ساقلاش"}
           </button>
         </div>
       </div>
