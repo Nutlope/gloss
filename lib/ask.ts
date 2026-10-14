@@ -125,8 +125,8 @@ async function stream(ix: DocIndex, glossId: string, modelKey: ModelKey) {
     if (raf) cancelAnimationFrame(raf);
     flush();
   } catch (err) {
-    if (ctrl.signal.aborted) update((t) => ({ ...t, streaming: false, error: t.content ? undefined : "Stopped." }));
-    else update((t) => ({ ...t, streaming: false, error: `Connection lost: ${String(err)}` }));
+    if (ctrl.signal.aborted) update((t) => ({ ...t, streaming: false, error: t.content ? undefined : "توختىتىلدى." }));
+    else update((t) => ({ ...t, streaming: false, error: `ئۇلىنىش ئۈزۈلدى: ${String(err)}` }));
   } finally {
     controllers.delete(glossId);
     update((t) => ({ ...t, streaming: false, searching: false }));
@@ -197,7 +197,7 @@ export async function fetchBrief(ix: DocIndex) {
     if (j.brief) useStore.getState().setBrief(id, { status: "ready", data: j.brief, usage: j.usage, modelKey, at: Date.now() });
     else useStore.getState().setBrief(id, { status: "error", error: j.error ?? "Could not write the gloss.", needKey: j.code === "need_key" });
   } catch (e) {
-    useStore.getState().setBrief(id, { status: "error", error: `Connection lost: ${String(e)}` });
+    useStore.getState().setBrief(id, { status: "error", error: `ئۇلىنىش ئۈزۈلدى: ${String(e)}` });
   }
 }
 
@@ -213,7 +213,7 @@ async function failure(res: Response): Promise<{ error: string; needKey: boolean
     const j = (await res.json()) as { error?: string; code?: string };
     return { error: j.error ?? `Request failed (${res.status}).`, needKey: j.code === "need_key" };
   } catch {
-    return { error: `Request failed (${res.status}).`, needKey: false };
+    return { error: `تەلەپ مەغلۇپ بولدى (${res.status}).`, needKey: false };
   }
 }
 

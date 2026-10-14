@@ -15,7 +15,7 @@ export type Parsed = { ok: true; pages: string[]; credits: number | null } | { o
 
 export async function parseCarefully(pdf: Blob, opts: { tier: Tier; maxPages: number; signal?: AbortSignal; deadlineMs?: number }): Promise<Parsed> {
   const key = process.env.LLAMA_CLOUD_API_KEY;
-  if (!key) return { ok: false, error: "Careful reading is not set up on this server." };
+  if (!key) return { ok: false, error: "بۇ مۇلازىمېتىردا ئەستايىدىل ئوقۇش تەڭشەلمىگەن." };
   const auth = { Authorization: `Bearer ${key}` };
   const started = Date.now();
   const deadline = opts.deadlineMs ?? 240_000;
@@ -27,15 +27,15 @@ export async function parseCarefully(pdf: Blob, opts: { tier: Tier; maxPages: nu
   try {
     const res = await fetch(`${BASE}/upload`, { method: "POST", headers: auth, body: form, signal: opts.signal });
     const j = (await res.json().catch(() => ({}))) as { id?: string; detail?: unknown };
-    if (!res.ok || !j.id) return { ok: false, error: `The careful reader refused the file (${res.status}).` };
+    if (!res.ok || !j.id) return { ok: false, error: `ئەستايىدىل ئوقۇغۇچ ھۆججەتنى رەت قىلدى (${res.status}).` };
     job = j.id;
   } catch {
-    return { ok: false, error: "Could not reach the careful reader." };
+    return { ok: false, error: "ئەستايىدىل ئوقۇغۇچقا ئۇلىنالمىدى." };
   }
 
   // Poll until done, the request is cancelled, or the function would run out of time.
   while (Date.now() - started < deadline) {
-    if (opts.signal?.aborted) return { ok: false, error: "Stopped." };
+    if (opts.signal?.aborted) return { ok: false, error: "توختىتىلدى." };
     await new Promise((r) => setTimeout(r, 1500));
     const s = (await fetch(`${BASE}/${job}`, { headers: auth, signal: opts.signal })
       .then((r) => r.json())
@@ -44,12 +44,12 @@ export async function parseCarefully(pdf: Blob, opts: { tier: Tier; maxPages: nu
     if (status === "COMPLETED") break;
     if (status === "FAILED" || status === "CANCELLED") return { ok: false, error: s?.job?.error_message || "The careful reader could not read this file." };
   }
-  if (Date.now() - started >= deadline) return { ok: false, error: "Reading carefully took too long. Try a shorter PDF." };
+  if (Date.now() - started >= deadline) return { ok: false, error: "ئەستايىدىل ئوقۇش بەك ئۇزۇن ۋاقىت ئالدى. قىسقىراق PDF سىناڭ." };
 
   const res = (await fetch(`${BASE}/${job}?expand=markdown,usage`, { headers: auth, signal: opts.signal })
     .then((r) => r.json())
     .catch(() => null)) as { markdown?: { pages?: { page_number: number; markdown: string; success?: boolean }[] }; job?: { usage?: { credits?: number | null } } } | null;
   const pages = (res?.markdown?.pages ?? []).sort((a, b) => a.page_number - b.page_number).map((p) => p.markdown ?? "");
-  if (!pages.some((p) => p.trim())) return { ok: false, error: "The careful reader found no text in this file." };
+  if (!pages.some((p) => p.trim())) return { ok: false, error: "ئەستايىدىل ئوقۇغۇچ بۇ ھۆججەتتىن تېكىست تاپالمىدى." };
   return { ok: true, pages, credits: res?.job?.usage?.credits ?? null };
 }

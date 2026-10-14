@@ -172,7 +172,7 @@ export async function completeJSON<T>(req: {
 }): Promise<{ ok: true; data: T; usage: Usage } | { ok: false; error: string }> {
   const model: ModelEntry = MODELS[req.model];
   const apiKey = req.apiKey?.trim() || process.env.TOGETHER_API_KEY;
-  if (!apiKey) return { ok: false, error: "No Together API key. Set TOGETHER_API_KEY, or add your own key." };
+  if (!apiKey) return { ok: false, error: "Together API ئاچقۇچى يوق. TOGETHER_API_KEY نى تەڭشەڭ ياكى ئۆز ئاچقۇچىڭىزنى قوشۇڭ." };
 
   let res: Response;
   try {
@@ -190,7 +190,7 @@ export async function completeJSON<T>(req: {
       }),
     });
   } catch (e) {
-    return { ok: false, error: `Could not reach Together: ${String(e)}` };
+    return { ok: false, error: `Together غا ئۇلىنالمىدى: ${String(e)}` };
   }
   const body = await res.text();
   if (!res.ok) return { ok: false, error: errorMessage(res.status, body) };
@@ -208,6 +208,6 @@ export async function completeJSON<T>(req: {
     const ct = j.usage?.completion_tokens ?? 0;
     return { ok: true, data, usage: { promptTokens: pt, cachedTokens: cached, completionTokens: ct, costUsd: costFor(req.model, pt, cached, ct) } };
   } catch {
-    return { ok: false, error: "The model returned something that was not valid JSON. Try again." };
+    return { ok: false, error: "مودېل ئىناۋەتلىك JSON قايتۇرمىدى. قايتا سىناڭ." };
   }
 }

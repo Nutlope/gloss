@@ -62,7 +62,7 @@ async function record(subject: string, pages: number, usd: number) {
 
 export async function POST(req: Request) {
   const key = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "").trim();
-  if (!key) return Response.json({ error: "Reading carefully needs your Together key. Add it from the key button.", code: "need_key" }, { status: 401 });
+  if (!key) return Response.json({ error: "ئەستايىدىل ئوقۇشقا Together ئاچقۇچىڭىز كېرەك. ئاچقۇچ كۇنۇپكىسىدىن قوشۇڭ.", code: "need_key" }, { status: 401 });
   if (Number(req.headers.get("content-length") ?? 0) > MAX_BYTES + 10_000) return tooLarge();
 
   let file: File | null = null;
@@ -71,14 +71,14 @@ export async function POST(req: Request) {
     const f = form.get("file");
     file = f instanceof File ? f : null;
   } catch {}
-  if (!file) return Response.json({ error: "Send the PDF as a file." }, { status: 400 });
+  if (!file) return Response.json({ error: "PDF نى ھۆججەت قىلىپ ئەۋەتىڭ." }, { status: 400 });
   if (file.size > MAX_BYTES) return tooLarge();
 
-  if (!(await togetherKeyWorks(key))) return Response.json({ error: "Together did not accept your key. Check it in the key menu.", code: "need_key" }, { status: 401 });
+  if (!(await togetherKeyWorks(key))) return Response.json({ error: "Together ئاچقۇچىڭىزنى قوبۇل قىلمىدى. ئاچقۇچ تىزىملىكىدە تەكشۈرۈڭ.", code: "need_key" }, { status: 401 });
 
   const subject = `careful:${hash(key)}`;
   const used = await pagesToday(subject);
-  if (used >= PAGES_PER_DAY) return Response.json({ error: `You've read ${PAGES_PER_DAY} pages carefully today. More tomorrow.` }, { status: 429 });
+  if (used >= PAGES_PER_DAY) return Response.json({ error: `بۈگۈن ${PAGES_PER_DAY} بەتنى ئەستايىدىل ئوقۇدىڭىز. ئەتە يەنە بولىدۇ.` }, { status: 429 });
 
   const result = await parseCarefully(file, { tier: TIER, maxPages: Math.min(MAX_PAGES, PAGES_PER_DAY - used), signal: req.signal, deadlineMs: 270_000 });
   if (!result.ok) return Response.json({ error: result.error }, { status: 502 });
@@ -87,5 +87,5 @@ export async function POST(req: Request) {
 }
 
 function tooLarge() {
-  return Response.json({ error: "That PDF is over 4MB, too large to read carefully here." }, { status: 413 });
+  return Response.json({ error: "بۇ PDF ‏4MB دىن چوڭ، بۇ يەردە ئەستايىدىل ئوقۇشقا بەك چوڭ." }, { status: 413 });
 }

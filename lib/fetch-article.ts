@@ -150,8 +150,8 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
   const checked = await safeUrl((opts.pdf && arxivFullText(raw, "pdf")) || raw.trim());
   if (typeof checked === "string") return { ok: false, error: checked, status: 400 };
   const kind = notAnArticle(checked.toString());
-  if (kind === "social") return { ok: false, error: "That's a post, not an article. Open the link it shares, or copy the post and use Paste text.", status: 422 };
-  if (kind === "video") return { ok: false, error: "That's a video, and Gloss reads text. Copy its transcript and use Paste text.", status: 422 };
+  if (kind === "social") return { ok: false, error: "بۇ ماقالە ئەمەس، يازما. ئۇ ھەمبەھىرلىگەن ئۇلانمىنى ئېچىڭ ياكى يازمىنى كۆچۈرۈپ «تېكىست چاپلاش» نى ئىشلىتىڭ.", status: 422 };
+  if (kind === "video") return { ok: false, error: "بۇ سىن، Gloss بولسا تېكىست ئوقۇيدۇ. خاتىرە تېكىستىنى كۆچۈرۈپ «تېكىست چاپلاش» نى ئىشلىتىڭ.", status: 422 };
 
   // Follow redirects by hand so every hop gets the same private-address check.
   let res: Response | null = null;
@@ -173,7 +173,7 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
       target = next;
     }
   } catch {
-    return { ok: false, error: "The site did not answer in time.", status: 502 };
+    return { ok: false, error: "تور بېكەت ۋاقتىدا جاۋاب بەرمىدى.", status: 502 };
   }
   if (!res || !res.ok) {
     const status = res?.status ?? 0;
@@ -189,17 +189,17 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
   const type = res.headers.get("content-type") ?? "";
   if (type.includes("application/pdf") && opts.pdf) {
     const pdf = await res.arrayBuffer();
-    if (pdf.byteLength > MAX_PDF_BYTES) return { ok: false, error: "That PDF is too large to import.", status: 413 };
+    if (pdf.byteLength > MAX_PDF_BYTES) return { ok: false, error: "بۇ PDF ئەكىرىشكە بەك چوڭ.", status: 413 };
     const name = decodeURIComponent(target.pathname.split("/").pop() || "document.pdf");
     return { ok: true, pdf, name: name.toLowerCase().endsWith(".pdf") ? name : `${name}.pdf` };
   }
   if (type.includes("application/pdf")) {
-    return { ok: false, error: "That link is a PDF. Download it, then drop the file here.", status: 415 };
+    return { ok: false, error: "بۇ ئۇلانما PDF. چۈشۈرۈپ، ھۆججەتنى بۇ يەرگە تاشلاڭ.", status: 415 };
   }
-  if (!type.includes("html")) return { ok: false, error: "That link is not a web page.", status: 415 };
+  if (!type.includes("html")) return { ok: false, error: "بۇ ئۇلانما تور بەت ئەمەس.", status: 415 };
 
   const buf = await res.arrayBuffer();
-  if (buf.byteLength > MAX_BYTES) return { ok: false, error: "That page is too large to import.", status: 413 };
+  if (buf.byteLength > MAX_BYTES) return { ok: false, error: "بۇ بەت ئەكىرىشكە بەك چوڭ.", status: 413 };
   const html = new TextDecoder().decode(buf);
 
   const { document } = parseHTML(html);
@@ -243,12 +243,12 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
     // Some unusual markup trips Readability up; that reads the same as no article found.
   }
   if (!parsed?.content) {
-    return { ok: false, error: "Could not find an article on that page. Try pasting the text instead.", status: 422 };
+    return { ok: false, error: "بۇ بەتتىن ماقالە تېپىلمىدى. ئۇنىڭ ئورنىغا تېكىستنى چاپلاپ بېقىڭ.", status: 422 };
   }
 
   const { document: clean } = parseHTML(`<!doctype html><html><body><div id="r">${parsed.content}</div></body></html>`);
   const root = clean.getElementById("r");
-  if (!root) return { ok: false, error: "Could not read that article.", status: 422 };
+  if (!root) return { ok: false, error: "بۇ ماقالىنى ئوقۇيالمىدى.", status: 422 };
   let blocks = htmlToBlocks(root as never, target.toString());
   const title = tidyTitle(undash((parsed.title || target.hostname).trim()));
   if (blocks[0] && blocks[0].type !== "p" && blocks[0].runs.map((r) => r.text).join("").trim() === title) blocks = blocks.slice(1);
@@ -268,7 +268,7 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
   // A page drawn by scripts (a Google Doc, an app shell) leaves only its newsletter box and footer.
   const words = blocks.reduce((n, b) => n + b.runs.map((r) => r.text).join("").split(/\s+/).filter(Boolean).length, 0);
   if (blocks.filter((b) => b.type === "p").length < 2 || words < MIN_WORDS) {
-    return { ok: false, error: "That page has too little text to read here.", status: 422 };
+    return { ok: false, error: "بۇ بەتتە ئوقۇغۇدەك تېكىست بەك ئاز.", status: 422 };
   }
 
   const article: Article = {

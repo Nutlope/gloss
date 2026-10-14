@@ -17,7 +17,7 @@ type InRow = { id: string; articleId: string; data: unknown; deleted?: boolean; 
  */
 export async function GET(req: Request) {
   const { userId } = await auth();
-  if (!userId) return Response.json({ error: "Sign in to sync." }, { status: 401 });
+  if (!userId) return Response.json({ error: "ماس قەدەملەش ئۈچۈن كىرىڭ." }, { status: 401 });
   const raw = new URL(req.url).searchParams.get("since");
   const since = raw && !Number.isNaN(Date.parse(raw)) ? new Date(raw).toISOString() : "1970-01-01T00:00:00Z";
   return Response.json(await pullRows(userId, since));
@@ -26,8 +26,8 @@ export async function GET(req: Request) {
 /** Push: upsert the rows a device changed. */
 export async function POST(req: Request) {
   const { userId } = await auth();
-  if (!userId) return Response.json({ error: "Sign in to sync." }, { status: 401 });
-  if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY) return Response.json({ error: "Too large." }, { status: 413 });
+  if (!userId) return Response.json({ error: "ماس قەدەملەش ئۈچۈن كىرىڭ." }, { status: 401 });
+  if (Number(req.headers.get("content-length") ?? 0) > MAX_BODY) return Response.json({ error: "بەك چوڭ." }, { status: 413 });
 
   let body: { changes?: Record<string, InRow[]> };
   try {
@@ -49,7 +49,7 @@ export async function POST(req: Request) {
     }));
     count += changes[table].length;
   }
-  if (count > MAX_ROWS) return Response.json({ error: "Too many rows in one push." }, { status: 413 });
+  if (count > MAX_ROWS) return Response.json({ error: "بىر قېتىمدا بەك كۆپ قۇر ئەۋەتىلدى." }, { status: 413 });
   await pushRows(userId, changes);
   return Response.json({ ok: true, count });
 }

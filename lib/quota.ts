@@ -107,7 +107,7 @@ export async function peekFree(req: Request): Promise<{ left: number; signedIn: 
 
 /** The JSON a route answers with when a reader needs their own key. */
 export function needKey(state: FreeState | null, message?: string): Response {
-  if (state?.reason === "burst") return Response.json({ error: "That's a lot at once. Wait a moment, then try again." }, { status: 429 });
+  if (state?.reason === "burst") return Response.json({ error: "بىر قېتىمدا بەك كۆپ. سەل ساقلاپ، قايتا سىناڭ." }, { status: 429 });
   const error =
     message ??
     (!state

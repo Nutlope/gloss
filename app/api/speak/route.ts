@@ -17,8 +17,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Body must be JSON." }, { status: 400 });
   }
   const text = (body.text ?? "").trim();
-  if (!text) return Response.json({ error: "Nothing to read." }, { status: 400 });
-  if (text.length > TTS_MAX_CHARS + 200) return Response.json({ error: "That passage is too long to read in one go." }, { status: 413 });
+  if (!text) return Response.json({ error: "ئوقۇيدىغان نەرسە يوق." }, { status: 400 });
+  if (text.length > TTS_MAX_CHARS + 200) return Response.json({ error: "بۇ بۆلەك بىر قېتىمدا ئوقۇشقا بەك ئۇزۇن." }, { status: 413 });
 
   const headerKey = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "").trim();
   // Reading aloud is never on the shared key: a minute of voice costs more than a day of free answers.
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       body: JSON.stringify({ model: TTS_MODEL, voice: TTS_VOICE, input: text, response_format: "mp3" }),
     });
   } catch {
-    return Response.json({ error: "Could not reach the voice. Check your connection." }, { status: 502 });
+    return Response.json({ error: "ئاۋاز مۇلازىمىتىگە ئۇلىنالمىدى. تورىڭىزنى تەكشۈرۈڭ." }, { status: 502 });
   }
   if (!res.ok || !res.body) {
     let msg = `The voice answered ${res.status}.`;

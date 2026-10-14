@@ -1969,3 +1969,7 @@ a.desk-tile:focus-visible {
 [dir="rtl"] .lucide-chevron-left {
   transform: scaleX(-1);
 }
+/* The filter-row page buttons sit and scroll physically left and right, so their chevrons keep pointing that way. */
+[dir="rtl"] .lib-chip-page .lucide {
+  transform: none;
+}

@@ -476,8 +476,11 @@ function ChipRow({ label, children }: { label: string; children: React.ReactNode
     if (!el) return;
     const read = () =>
       setEdges((e) => {
-        const l = el.scrollLeft > 2;
-        const r = el.scrollLeft + el.clientWidth < el.scrollWidth - 2;
+        // In RTL, scrollLeft runs from -(scrollWidth - clientWidth) up to 0; measure from the left edge either way.
+        const max = el.scrollWidth - el.clientWidth;
+        const x = getComputedStyle(el).direction === "rtl" ? max + el.scrollLeft : el.scrollLeft;
+        const l = x > 2;
+        const r = x < max - 2;
         return e.l === l && e.r === r ? e : { l, r };
       });
     read();

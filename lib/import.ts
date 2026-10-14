@@ -20,7 +20,7 @@ export async function importFromUrl(raw: string, onProgress?: (p: number, label?
     const j = (await res.json()) as { article?: Article; error?: string };
     return j.article ? { ok: true, article: j.article } : { ok: false, error: j.error ?? "Could not import that page." };
   } catch {
-    return { ok: false, error: "Could not reach the importer. Check your connection." };
+    return { ok: false, error: "ئەكىرگۈچكە ئۇلىنالمىدى. تورىڭىزنى تەكشۈرۈڭ." };
   }
 }
 
@@ -42,7 +42,7 @@ export async function importFromFile(file: File, onProgress?: (p: number, label?
       a.source = file.name;
       return { ok: true, article: a };
     }
-    return { ok: false, error: "Gloss reads PDF, .txt and .md files." };
+    return { ok: false, error: "Gloss پەقەت PDF، ‎.txt ۋە ‎.md ھۆججەتلىرىنى ئوقۇيدۇ." };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not read that file." };
   }
@@ -50,7 +50,7 @@ export async function importFromFile(file: File, onProgress?: (p: number, label?
 
 export function importFromText(text: string): ImportResult {
   const a = textToArticle(text, { origin: "paste" });
-  return a.blocks.length ? { ok: true, article: a } : { ok: false, error: "There was no readable text in that." };
+  return a.blocks.length ? { ok: true, article: a } : { ok: false, error: "ئۇنىڭدا ئوقۇغىلى بولىدىغان تېكىست يوق." };
 }
 
 /**

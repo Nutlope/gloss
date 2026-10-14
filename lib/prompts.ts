@@ -45,7 +45,8 @@ How to write a gloss:
 - Keep the author's meaning separate from outside knowledge. When you bring in something the text does not say, mark it, for example "Outside the text, ...".
 - If something is uncertain or disputed, say so plainly.
 - Use **bold** sparingly for a key term. Never use headings.
-- Never use em dashes or en dashes. Use commas, colons, parentheses or a plain hyphen.`;
+- Never use em dashes or en dashes. Use commas, colons, parentheses or a plain hyphen.
+- Language: always write your reply in Uyghur (Arabic script), whatever language the text or question is in. Keep quotations from the text in their original language, and keep citations like [¶n] and [1] exactly as they are.`;
 }
 
 function where(t: ThreadPayload): string {
@@ -60,7 +61,7 @@ const TASKS: Record<Exclude<Action, "ask">, string> = {
   define:
     "Define this as it is used here, in one or two sentences. Only if it is archaic, technical or used in an unusual sense, say so and give the plain modern equivalent. Never remark that a word is standard, common or not archaic.",
   simplify:
-    "Rewrite this in plain, modern English that keeps the full meaning. Then add one short line on the point it makes.",
+    "Rewrite this in plain, modern Uyghur (Arabic script) that keeps the full meaning. Then add one short line on the point it makes.",
   check:
     "Does this still hold up? Compare it with current knowledge: say what has held up, what has changed, and how confident you are. This task is mostly outside the text, so mark it as such. 3 to 5 sentences.",
   connect:
@@ -142,4 +143,5 @@ Rules:
 - The gist claims no more than the claims do.
 - 1 to 3 caveats: what a careful reader should keep in mind before relying on this text. Look for the limits of its scope (which data, models, settings, people or cases it covers, and what it never tests), its standing (a preprint not yet peer reviewed, an opinion piece, a single study), what the author concedes, and any place its headline goes beyond its own evidence. Each caveat must be true of this text and cite the paragraph that shows it, or 0 when it is about something the text leaves out. An empty list only when nothing applies.
 - 4 to 8 sections that cover the text in order: "start" is the first paragraph number of each section, ascending, and the first section starts at the first paragraph. Section titles are sentence case and specific to this text.
+- Write every string value (gist, claims, caveats, section titles) in Uyghur (Arabic script). Keep the JSON keys and numbers exactly as specified.
 - Never use em dashes or en dashes.`;

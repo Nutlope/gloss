@@ -19,9 +19,9 @@ export async function readCarefully(shown: Article, signal?: AbortSignal): Promi
   // The reader shows a display copy; the new reading builds on the stored original.
   const article = (await loadDoc(shown.id)) ?? shown;
   const pdf = await loadPdf(article.id);
-  if (!pdf) return { ok: false, error: "The PDF is not on this device. Open it again from the file to read it carefully." };
+  if (!pdf) return { ok: false, error: "بۇ PDF بۇ ئۈسكۈنىدە يوق. ئەستايىدىل ئوقۇش ئۈچۈن ھۆججەتتىن قايتا ئېچىڭ." };
   const key = readApiKey();
-  if (!key) return { ok: false, error: "Reading carefully needs your Together key.", needKey: true };
+  if (!key) return { ok: false, error: "ئەستايىدىل ئوقۇشقا Together ئاچقۇچىڭىز كېرەك.", needKey: true };
 
   const form = new FormData();
   form.append("file", pdf, "document.pdf");
@@ -32,22 +32,22 @@ export async function readCarefully(shown: Article, signal?: AbortSignal): Promi
     status = res.status;
     j = await res.json();
   } catch (e) {
-    if (signal?.aborted) return { ok: false, error: "Stopped." };
-    return { ok: false, error: `Connection lost: ${String(e)}` };
+    if (signal?.aborted) return { ok: false, error: "توختىتىلدى." };
+    return { ok: false, error: `ئۇلىنىش ئۈزۈلدى: ${String(e)}` };
   }
   if (status !== 200 || !j.pages) return { ok: false, error: j.error ?? `Request failed (${status}).`, needKey: j.code === "need_key" };
   // A partial reading would drop the rest of the text, so it does not replace anything.
-  if (j.truncated) return { ok: false, error: "This PDF is too long to read carefully in one go (over 60 pages)." };
+  if (j.truncated) return { ok: false, error: "بۇ PDF بىر قېتىمدا ئەستايىدىل ئوقۇشقا بەك ئۇزۇن (60 بەتتىن ئارتۇق)." };
 
   let blocks = stitchBlocks(j.pages.flatMap((md) => markdownBlocks(htmlTablesToMarkdown(md))));
   // The title is already shown above the text.
   if (blocks[0] && (blocks[0].type === "h2" || blocks[0].type === "h3") && same(blocks[0].runs.map((r) => r.text).join(""), article.title)) blocks = blocks.slice(1);
-  if (!blocks.some((b) => b.type === "p")) return { ok: false, error: "The careful reading came back empty. The text is unchanged." };
+  if (!blocks.some((b) => b.type === "p")) return { ok: false, error: "ئەستايىدىل ئوقۇش نەتىجىسى بوش. تېكىست ئۆزگەرمىدى." };
   // Ids from separate pages would collide; number them again in reading order.
   blocks = blocks.map((b, i) => ({ ...b, id: `b${i + 1}` }));
 
   const next: Article = { ...article, blocks };
-  if (!(await useStore.getState().replaceText(next, wordCount(next)))) return { ok: false, error: "This browser's storage is full. The text is unchanged." };
+  if (!(await useStore.getState().replaceText(next, wordCount(next)))) return { ok: false, error: "بۇ توركۆرگۈنىڭ ساقلىغۇچى تولدى. تېكىست ئۆزگەرمىدى." };
   window.dispatchEvent(new CustomEvent("gloss:text-replaced", { detail: next }));
   return { ok: true, article: next };
 }

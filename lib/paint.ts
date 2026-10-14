@@ -17,7 +17,7 @@ export const COVER_USD = 0.02;
 
 export async function paintCover(req: { scene: string; topic: TopicKey; apiKey?: string; signal?: AbortSignal }): Promise<{ ok: true; jpeg: Uint8Array } | { ok: false; error: string }> {
   const apiKey = req.apiKey?.trim() || process.env.TOGETHER_API_KEY;
-  if (!apiKey) return { ok: false, error: "No Together API key." };
+  if (!apiKey) return { ok: false, error: "Together API ئاچقۇچى يوق." };
   const prompt = `Editorial risograph print. ${req.scene.replace(/\.?$/, ".")} Two-colour palette of ${TOPIC[req.topic].inks} ink on warm cream paper filling the whole image, grain and halftone texture, mid-century book-cover illustration, wordless, no lettering, no border.`;
   let res: Response;
   try {
@@ -28,7 +28,7 @@ export async function paintCover(req: { scene: string; topic: TopicKey; apiKey?:
       body: JSON.stringify({ model: MODEL, prompt, width: SIZE, height: SIZE, n: 1, response_format: "base64", prompt_upsampling: false }),
     });
   } catch (e) {
-    return { ok: false, error: `Could not reach Together: ${String(e)}` };
+    return { ok: false, error: `Together غا ئۇلىنالمىدى: ${String(e)}` };
   }
   const j = (await res.json().catch(() => ({}))) as { data?: { b64_json?: string }[]; error?: { message?: string } };
   const b64 = j.data?.[0]?.b64_json;

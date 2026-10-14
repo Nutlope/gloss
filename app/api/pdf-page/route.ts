@@ -54,8 +54,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Body must be JSON." }, { status: 400 });
   }
   const image = body.image ?? "";
-  if (!/^data:image\/(jpeg|png|webp);base64,/.test(image)) return Response.json({ error: "Send the page as an image." }, { status: 400 });
-  if (image.length > MAX_IMAGE_CHARS) return Response.json({ error: "That page image is too large." }, { status: 413 });
+  if (!/^data:image\/(jpeg|png|webp);base64,/.test(image)) return Response.json({ error: "بەتنى رەسىم قىلىپ ئەۋەتىڭ." }, { status: 400 });
+  if (image.length > MAX_IMAGE_CHARS) return Response.json({ error: "بۇ بەت رەسىمى بەك چوڭ." }, { status: 413 });
 
   const headerKey = req.headers.get("Authorization")?.replace(/^Bearer\s+/i, "").trim();
   const own = body.apiKey?.trim() || headerKey || undefined;
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
       }),
     });
   } catch {
-    return Response.json({ error: "Could not reach the page reader." }, { status: 502 });
+    return Response.json({ error: "بەت ئوقۇغۇچقا ئۇلىنالمىدى." }, { status: 502 });
   }
   if (!res.ok || !res.body) {
     let msg = `The page reader answered ${res.status}.`;

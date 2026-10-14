@@ -36,9 +36,9 @@ export async function POST(req: Request) {
     return Response.json({ error: "doc and thread are required." }, { status: 400 });
   }
   const docChars = doc.paras.reduce((a, p) => a + (p.text?.length ?? 0), 0);
-  if (docChars > MAX_DOC_CHARS) return Response.json({ error: "This text is too long to send in one piece." }, { status: 413 });
+  if (docChars > MAX_DOC_CHARS) return Response.json({ error: "بۇ تېكىست بىر قېتىمدا ئەۋەتىشكە بەك ئۇزۇن." }, { status: 413 });
   if ((thread.quote?.length ?? 0) > 12_000 || (thread.question?.length ?? 0) > 4_000) {
-    return Response.json({ error: "That selection or question is too long." }, { status: 413 });
+    return Response.json({ error: "تاللانغان قىسىم ياكى سوئال بەك ئۇزۇن." }, { status: 413 });
   }
   const history = (body.history ?? []).slice(-12).filter((m) => m && (m.role === "user" || m.role === "assistant"));
 
