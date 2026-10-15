@@ -6,7 +6,7 @@ import { ArrowUpRight, X } from "lucide-react";
 import { blockEl, selectBlock, spanIn } from "@/lib/anchor";
 import { displayArticle, isHeading, readingMinutes, titleClass, type Article } from "@/lib/article";
 import { ARTICLE_QUESTIONS } from "@/lib/actions";
-import { SAMPLE_QUESTIONS } from "@/lib/samples";
+import { SAMPLE_QUESTIONS, tutorialNoteFor } from "@/lib/samples";
 import { fetchBrief } from "@/lib/ask";
 import { BRAND } from "@/lib/brand";
 import { indexArticle } from "@/lib/doc";
@@ -33,6 +33,7 @@ export function Reader({ id, initial }: { id: string; initial: Article | null })
   const [article, setArticle] = useState<Article | null>(initial);
   const [missing, setMissing] = useState(false);
   const hydrate = useStore((s) => s.hydrate);
+  const hydrated = useStore((s) => s.hydrated);
   // A text renamed on the shelf keeps its new name here too.
   const renamed = useStore((s) => s.library.find((x) => x.id === id)?.title);
   const shown = useMemo(() => (article ? displayArticle(renamed && renamed !== article.title ? { ...article, title: renamed } : article) : null), [article, renamed]);
@@ -47,6 +48,13 @@ export function Reader({ id, initial }: { id: string; initial: Article | null })
         .then((a) => (a ? setArticle(a) : setMissing(true)));
     }
   }, [hydrate, id, initial]);
+
+  useEffect(() => {
+    if (!hydrated || !article || article.origin !== "sample") return;
+    if (useStore.getState().highlights[article.id] !== undefined) return;
+    const note = tutorialNoteFor(article);
+    if (note) useStore.getState().addHighlight(note);
+  }, [article, hydrated]);
 
   // The text was read again (more carefully, or a page in the background): show the new reading in
   // place. Scroll anchoring alone did not hold when a page above the reader was swapped, so the
