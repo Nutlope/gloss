@@ -52,7 +52,7 @@ export function Library() {
   const [topic, setTopic] = useState<TopicKey | null>(null);
   const [only, setOnly] = useState<TopicKey | null>(null);
   const [tag, setTag] = useState<TagKey | null>(null);
-  const [sort, setSort] = useState<Sort>("topic");
+  const [sort, setSort] = useState<Sort>("recent");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<{ id: string; origin: Origin } | null>(null);
   const [adding, setAdding] = useState<AddTab | null>(null);
