@@ -14,7 +14,11 @@ export async function POST(req: Request) {
   }
   if (typeof body.title !== "string" || !body.title.trim()) return Response.json({ error: "title is required." }, { status: 400 });
   const str = (v: unknown, n: number) => (typeof v === "string" ? v.slice(0, n) : undefined);
-  const input: ShelveInput = { title: body.title.slice(0, 300), author: str(body.author, 200), source: str(body.source, 200), dek: str(body.dek, 600), excerpt: str(body.excerpt, 3000) };
+  const shelves = (Array.isArray(body.shelves) ? body.shelves : [])
+    .filter((s) => s && typeof s.key === "string" && /^custom-[a-z0-9-]+$/.test(s.key) && typeof s.name === "string" && s.name.trim())
+    .slice(0, 30)
+    .map((s) => ({ key: s.key.slice(0, 80), name: s.name.replace(/\s+/g, " ").trim().slice(0, 40) }));
+  const input: ShelveInput = { title: body.title.slice(0, 300), author: str(body.author, 200), source: str(body.source, 200), dek: str(body.dek, 600), excerpt: str(body.excerpt, 3000), shelves };
 
   const apiKey = body.apiKey?.trim() || undefined;
   let free: Awaited<ReturnType<typeof checkFree>> | null = null;

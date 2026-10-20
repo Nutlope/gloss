@@ -1,13 +1,24 @@
 "use client";
 
 import { ViewTransition } from "react";
-import { fmtMinutes, lookOf, topicArtSrc, type Book, type Topic } from "@/lib/library";
+import { fmtMinutes, isCustomKey, lookOf, topicArtSrc, type Book, type ShelfDef } from "@/lib/library";
 import { Cover, Glyph } from "./Book";
 
 const hours = (books: Book[]) => fmtMinutes(books.reduce((n, b) => n + b.minutes, 0));
 
+function TopicArt({ t, name }: { t: ShelfDef; name?: string }) {
+  if (isCustomKey(t.key))
+    return (
+      <span className="topic-custom-art" style={{ background: `linear-gradient(150deg, ${t.shades[1]}, ${t.shades[0]} 55%, ${t.shades[2]})` }} aria-hidden>
+        <span>{(name ?? t.name).charAt(0).toUpperCase()}</span>
+      </span>
+    );
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img src={topicArtSrc(t.key)} alt="" decoding="async" draggable={false} />;
+}
+
 /** Every topic as a card: its drawing, its name, and its books standing in a row. */
-export function TopicGrid({ topics, onPick }: { topics: { topic: Topic; books: Book[] }[]; onPick: (t: Topic) => void }) {
+export function TopicGrid({ topics, onPick }: { topics: { topic: ShelfDef; books: Book[] }[]; onPick: (t: ShelfDef) => void }) {
   return (
     <div className="topic-grid">
       {topics.map(({ topic: t, books }, i) => (
@@ -20,16 +31,16 @@ export function TopicGrid({ topics, onPick }: { topics: { topic: Topic; books: B
         >
           <ViewTransition name={`topic-art-${t.key}`} share="lib-morph" default="none">
             <div className="topic-card-art">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={topicArtSrc(t.key)} alt="" decoding="async" draggable={false} />
+              <TopicArt t={t} />
             </div>
           </ViewTransition>
           <div className="relative flex items-end justify-between gap-4 px-5 pb-1 pt-4">
             <div className="min-w-0">
               <ViewTransition name={`topic-name-${t.key}`} share="lib-morph" default="none">
                 <h3 className="w-fit font-serif text-[27px] leading-[1.05] tracking-[-0.015em] text-ink">
-                  <Glyph k={t.key} size={30} className="mr-2 -mt-1" />
+                  <Glyph k={t.key} size={30} className="mr-2 -mt-1" label={t.name} />
                   {t.name}
+                  {t.custom && <span className="ml-2 align-middle text-[11px] font-sans font-medium text-ink-3">Your shelf</span>}
                 </h3>
               </ViewTransition>
               <p className="mt-1.5 text-[13px] text-ink-3">
@@ -54,20 +65,19 @@ export function TopicGrid({ topics, onPick }: { topics: { topic: Topic; books: B
 }
 
 /** One topic, its books face-out, like the table at the front of a bookshop. */
-export function TopicPage({ topic: t, books, tools, onOpen }: { topic: Topic; books: Book[]; tools?: React.ReactNode; onOpen: (b: Book, el: HTMLElement) => void }) {
+export function TopicPage({ topic: t, books, tools, onOpen }: { topic: ShelfDef; books: Book[]; tools?: React.ReactNode; onOpen: (b: Book, el: HTMLElement) => void }) {
   return (
     <div style={{ ["--c" as string]: t.shades[0] }}>
       <header className="topic-head">
         <ViewTransition name={`topic-art-${t.key}`} share="lib-morph" default="none">
           <div className="topic-head-art">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={topicArtSrc(t.key)} alt="" decoding="async" draggable={false} />
+            <TopicArt t={t} />
           </div>
         </ViewTransition>
         <div className="relative max-w-[640px]">
           <ViewTransition name={`topic-name-${t.key}`} share="lib-morph" default="none">
             <h2 className="w-fit font-serif text-[clamp(40px,6vw,64px)] leading-[0.98] tracking-[-0.025em] text-ink">
-              <Glyph k={t.key} size={64} className="mr-3 !align-[-0.12em] max-sm:!size-[44px]" />
+              <Glyph k={t.key} size={64} className="mr-3 !align-[-0.12em] max-sm:!size-[44px]" label={t.name} />
               {t.name}
             </h2>
           </ViewTransition>
@@ -93,7 +103,7 @@ export function TopicPage({ topic: t, books, tools, onOpen }: { topic: Topic; bo
               </ViewTransition>
             </button>
             <p className="mt-3 flex items-center gap-2 text-[12.5px] text-ink-3">
-              <span>{fmtMinutes(b.minutes)}</span>
+              <span>{b.bookmark ? "Saved link" : fmtMinutes(b.minutes)}</span>
               {b.pct > 0 && (
                 <>
                   <span aria-hidden>·</span>

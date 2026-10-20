@@ -11,6 +11,7 @@ import { imageStem, leadImage, prepareImages } from "@/lib/images";
 import { Readability } from "@mozilla/readability";
 import { htmlToBlocks } from "@/lib/html-to-blocks";
 import { slugify, tidyTitle, undash, type Article, type Block } from "@/lib/article";
+import { bookmarkBlocks, isTooLittle } from "@/lib/bookmark";
 import { APP_UA } from "@/lib/together";
 
 const MAX_BYTES = 6_000_000;
@@ -145,6 +146,43 @@ export type FetchResult =
   | { ok: true; pdf: ArrayBuffer; name: string }
   | { ok: false; error: string; status: number };
 
+/** A page with too little text, as a saved link: a placeholder article that points back to the original. */
+function toBookmark(opts: { url: string; title: string; dek?: string; source?: string; image?: string }): Article {
+  const host = (() => {
+    try { return new URL(opts.url).hostname.replace(/^www\./, ""); } catch { return opts.source ?? ""; }
+  })();
+  const title = tidyTitle(undash((opts.title || host || "Saved link").trim())) || "Saved link";
+  const dek = opts.dek?.trim() ? undash(opts.dek.trim()).slice(0, 280) : undefined;
+  return {
+    id: `${slugify(title)}-${Math.random().toString(36).slice(2, 7)}`,
+    title,
+    dek,
+    source: opts.source ?? host,
+    sourceUrl: opts.url,
+    blocks: bookmarkBlocks({ dek, url: opts.url }),
+    origin: "url",
+    bookmark: true,
+    image: opts.image,
+    addedAt: Date.now(),
+  };
+}
+
+/** A page's own description of itself, from its meta tags. */
+function pageMeta(document: Document): { title?: string; dek?: string; site?: string } {
+  const meta = (names: string[]) => {
+    for (const el of Array.from(document.querySelectorAll("meta"))) {
+      const k = (el.getAttribute("property") ?? el.getAttribute("name") ?? "").toLowerCase();
+      if (names.includes(k)) {
+        const v = el.getAttribute("content")?.trim();
+        if (v) return v;
+      }
+    }
+    return undefined;
+  };
+  const title = meta(["og:title", "twitter:title"]) ?? document.querySelector("title")?.textContent?.trim() ?? undefined;
+  return { title, dek: meta(["og:description", "twitter:description", "description"]), site: meta(["og:site_name"]) };
+}
+
 /** `pdf`: the caller can read a PDF itself, so a PDF link comes back as the file instead of an error. */
 export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): Promise<FetchResult> {
   const checked = await safeUrl((opts.pdf && arxivFullText(raw, "pdf")) || raw.trim());
@@ -203,6 +241,7 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
   const html = new TextDecoder().decode(buf);
 
   const { document } = parseHTML(html);
+  const meta = pageMeta(document as unknown as Document);
   // Readability resolves relative links against the document URL.
   try {
     const base = document.createElement("base");
@@ -243,12 +282,13 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
     // Some unusual markup trips Readability up; that reads the same as no article found.
   }
   if (!parsed?.content) {
-    return { ok: false, error: "Could not find an article on that page. Try pasting the text instead.", status: 422 };
+    // No article on the page is not a dead end: save the link itself, to look at later.
+    return { ok: true, article: toBookmark({ url: target.toString(), title: meta.title || target.hostname, dek: meta.dek, source: meta.site ?? target.hostname.replace(/^www\./, ""), image: lead ?? undefined }) };
   }
 
   const { document: clean } = parseHTML(`<!doctype html><html><body><div id="r">${parsed.content}</div></body></html>`);
   const root = clean.getElementById("r");
-  if (!root) return { ok: false, error: "Could not read that article.", status: 422 };
+  if (!root) return { ok: true, article: toBookmark({ url: target.toString(), title: meta.title || parsed.title || target.hostname, dek: meta.dek, source: meta.site ?? target.hostname.replace(/^www\./, ""), image: lead ?? undefined }) };
   let blocks = htmlToBlocks(root as never, target.toString());
   const title = tidyTitle(undash((parsed.title || target.hostname).trim()));
   if (blocks[0] && blocks[0].type !== "p" && blocks[0].runs.map((r) => r.text).join("").trim() === title) blocks = blocks.slice(1);
@@ -266,9 +306,9 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
     blocks = [{ id: "b0", type: "figure", runs: [], src: lead }, ...blocks];
   }
   // A page drawn by scripts (a Google Doc, an app shell) leaves only its newsletter box and footer.
-  const words = blocks.reduce((n, b) => n + b.runs.map((r) => r.text).join("").split(/\s+/).filter(Boolean).length, 0);
-  if (blocks.filter((b) => b.type === "p").length < 2 || words < MIN_WORDS) {
-    return { ok: false, error: "That page has too little text to read here.", status: 422 };
+  // Too little to read is not a failure: the reader meant to keep the link, so keep it as one.
+  if (isTooLittle(blocks, MIN_WORDS)) {
+    return { ok: true, article: toBookmark({ url: target.toString(), title: meta.title || title, dek: meta.dek ?? dekFrom(parsed.excerpt, blocks), source: parsed.siteName ?? meta.site ?? target.hostname.replace(/^www\./, ""), image: lead ?? undefined }) };
   }
 
   const article: Article = {

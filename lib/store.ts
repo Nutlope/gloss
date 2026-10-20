@@ -80,6 +80,8 @@ export type LibraryItem = {
   favorite?: boolean;
   /** When it was first read to the end. */
   finishedAt?: number;
+  /** Saved as a link to look at later, because the page had too little text to read here. */
+  bookmark?: boolean;
   /** Shelved by an agent, through the Gloss MCP server. */
   addedBy?: "agent";
   /** Which connection an agent saved it through, by the name the reader gave it. */
@@ -287,6 +289,7 @@ export const useStore = create<State>((set, get) => ({
         year,
         sourceUrl: a.sourceUrl,
         image: a.image,
+        bookmark: a.bookmark || undefined,
         ...extra,
       };
       // Undefined fields are left out, so a shelf entry's JSON stays as small as it was.

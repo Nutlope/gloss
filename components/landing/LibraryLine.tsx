@@ -9,7 +9,7 @@ import { SAMPLE_SHELF } from "@/lib/classics";
 import { SAMPLES } from "@/lib/samples";
 import { useStore } from "@/lib/store";
 
-export type Saved = { id: string; title: string };
+export type Saved = { id: string; title: string; bookmark?: boolean };
 
 /** How far along, as a small ring in the pen's colour. */
 function Ring({ pct }: { pct: number }) {
@@ -51,7 +51,7 @@ export function LibraryLine({ saved }: { saved: Saved | null }) {
         <span className="lib-line-note">
           <Check size={14} className="shrink-0 text-good" />
           <span className="min-w-0 truncate">
-            Saved <span className="text-ink">{tidyTitle(saved.title)}</span> to your library
+            {saved.bookmark ? <>Saved as a link: <span className="text-ink">{tidyTitle(saved.title)}</span> — too little text to read here, kept to look at later</> : <>Saved <span className="text-ink">{tidyTitle(saved.title)}</span> to your library</>}
           </span>
         </span>
         <Link href="/library" className="lib-line-go">

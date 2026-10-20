@@ -11,6 +11,7 @@ import type { Article } from "./article";
 import { readApiKey } from "./ask";
 import type { Shelving } from "./library";
 import { excerptOf } from "./excerpt";
+import { customShelvesSnapshot } from "./library-prefs";
 import { loadDoc, useStore, type LibraryItem } from "./store";
 
 const inflight = new Set<string>();
@@ -26,7 +27,7 @@ export async function shelveText(a: Text): Promise<void> {
     const res = await fetch("/api/shelve", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ title: a.title, author: a.author, source: a.source, dek: a.dek, excerpt: a.blocks ? excerptOf(a.blocks) : undefined, apiKey: readApiKey() || undefined }),
+      body: JSON.stringify({ title: a.title, author: a.author, source: a.source, dek: a.dek, excerpt: a.blocks ? excerptOf(a.blocks) : undefined, shelves: customShelvesSnapshot(), apiKey: readApiKey() || undefined }),
     });
     if (res.status === 429 || res.status === 401) {
       const j = (await res.json().catch(() => ({}))) as { code?: string };
