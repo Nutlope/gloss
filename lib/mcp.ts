@@ -13,7 +13,7 @@ import { normalizeUrl } from "./links";
 import { blockText, textToArticle, wordCount, type Article } from "./article";
 import { shelfOf, shelveForUser, tokenUser, type ShelfRow } from "./db";
 import { arxivFullText, fetchArticle, notAnArticle } from "./fetch-article";
-import { TOPIC, TOPICS, isTopic, yearOf, type TopicKey } from "./library";
+import { TOPICS, isTopic, shelfDef, yearOf } from "./library";
 import { chargeFree, checkFreeUser } from "./quota";
 import { allow } from "./ratelimit";
 import { classify } from "./shelve";
@@ -35,7 +35,7 @@ const TOOLS = [
   {
     name: "save_articles",
     title: "Save articles to the library",
-    description: `Save web articles, essays, blog posts or papers to the reader's Gloss library. Gloss fetches each page, keeps its full text and sorts it onto a topic. Up to ${PER_CALL} URLs per call. Send the article's own URL, not a link to a post on X or another social site. Links already in the library are skipped. Returns what happened to each URL.`,
+    description: `Save web articles, essays, blog posts or papers to the reader's Gloss library. Gloss fetches each page, keeps its full text and sorts it onto a topic. A page with too little text to read is saved as a link to look at later. Up to ${PER_CALL} URLs per call. Send the article's own URL, not a link to a post on X or another social site. Links already in the library are skipped. Returns what happened to each URL.`,
     inputSchema: {
       type: "object",
       properties: { urls: { type: "array", items: { type: "string" }, minItems: 1, maxItems: PER_CALL, description: "Article URLs to save." } },
@@ -181,7 +181,7 @@ const toolResult = (text: string, structured: Record<string, unknown>) => ({ con
 
 /* ---------- save_articles ---------- */
 
-type Saved = { url: string; status: "saved" | "already_saved" | "failed"; title?: string; topic?: string; reason?: string };
+type Saved = { url: string; status: "saved" | "already_saved" | "failed"; title?: string; topic?: string; reason?: string; bookmark?: boolean };
 
 
 async function saveArticles(userId: string, args: Record<string, unknown>, via: string) {
@@ -203,7 +203,7 @@ async function saveArticles(userId: string, args: Record<string, unknown>, via: 
     if (kind === "social") return { url, status: "failed", reason: "This is a social post, not an article. Send the link the post points to, or, if the post is the piece, read it and send its text with save_text." };
     if (kind === "video") return { url, status: "failed", reason: "This is a video, not an article. Gloss reads text: send its transcript with save_text." };
     const known = have.get(key);
-    if (known) return { url, status: "already_saved", title: String(known.data.title ?? ""), topic: TOPIC[isTopic(known.data.topic) ? known.data.topic : "unsorted"].name };
+    if (known) return { url, status: "already_saved", title: String(known.data.title ?? ""), topic: shelfDef(typeof known.data.topic === "string" ? known.data.topic : "unsorted").name };
     if (budget <= 0) return { url, status: "failed", reason: `The daily limit of ${PER_DAY} saves is reached. Try again tomorrow.` };
     budget--;
 
@@ -223,7 +223,7 @@ async function saveArticles(userId: string, args: Record<string, unknown>, via: 
     const item = shelfItem(a, { topic, tags, scene, via });
     await shelveForUser(userId, item, a);
     have.set(key, { id: a.id, data: item as unknown as Record<string, unknown>, pct: 0 });
-    return { url, status: "saved", title: a.title, topic: TOPIC[topic ?? "unsorted"].name };
+    return { url, status: "saved", title: a.title, topic: shelfDef(topic ?? "unsorted").name, bookmark: a.bookmark || undefined };
   };
 
   // A few at a time: pages are slow, and one bad link never holds up the rest.
@@ -236,7 +236,7 @@ async function saveArticles(userId: string, args: Record<string, unknown>, via: 
 
   const count = (s: Saved["status"]) => results.filter((r) => r.status === s).length;
   const lines = results.map((r) =>
-    r.status === "saved" ? `Saved: ${r.title} (${r.topic})` : r.status === "already_saved" ? `Already in the library: ${r.title || r.url}` : `Not saved: ${r.url}. ${r.reason}`
+    r.status === "saved" ? (r.bookmark ? `Saved as a link (too little text to read here): ${r.title} (${r.topic})` : `Saved: ${r.title} (${r.topic})`) : r.status === "already_saved" ? `Already in the library: ${r.title || r.url}` : `Not saved: ${r.url}. ${r.reason}`
   );
   const head = `${count("saved")} saved, ${count("already_saved")} already in the library, ${count("failed")} not saved.`;
   return toolResult(`${head}\n${lines.join("\n")}\n\nThey'll be on the shelves at ${SITE}/library.`, { saved: count("saved"), alreadySaved: count("already_saved"), failed: count("failed"), results });
@@ -249,7 +249,7 @@ function savesLeft(shelf: ShelfRow[]) {
 }
 
 /** Sort it now, on the reader's own allowance. Out of allowance, it waits in Unsorted and the browser sorts it later. */
-async function sortOf(userId: string, a: Article): Promise<{ topic?: TopicKey; tags?: string[]; scene?: string }> {
+async function sortOf(userId: string, a: Article): Promise<{ topic?: string; tags?: string[]; scene?: string }> {
   const free = await checkFreeUser(userId);
   if (!free.ok) return {};
   const c = await classify({ title: a.title, author: a.author, source: a.source, dek: a.dek, excerpt: excerptOf(a.blocks) });
@@ -297,7 +297,7 @@ async function saveText(userId: string, args: Record<string, unknown>, via: stri
 
   const item = shelfItem(a, { ...(await sortOf(userId, a)), via });
   await shelveForUser(userId, item, a);
-  const topic = TOPIC[isTopic(item.topic) ? item.topic : "unsorted"].name;
+  const topic = shelfDef(typeof item.topic === "string" ? item.topic : "unsorted").name;
   return toolResult(`Saved: ${a.title} (${topic}, ${item.words.toLocaleString("en-US")} words)\n\nIt'll be on the shelves at ${SITE}/library.`, {
     status: "saved",
     title: a.title,
@@ -307,7 +307,7 @@ async function saveText(userId: string, args: Record<string, unknown>, via: stri
   });
 }
 
-function shelfItem(a: Article, s: { topic?: TopicKey; tags?: string[]; scene?: string; via?: string }): LibraryItem {
+function shelfItem(a: Article, s: { topic?: string; tags?: string[]; scene?: string; via?: string }): LibraryItem {
   const item: LibraryItem = {
     id: a.id,
     title: a.title,
@@ -323,6 +323,7 @@ function shelfItem(a: Article, s: { topic?: TopicKey; tags?: string[]; scene?: s
     topic: s.topic,
     tags: s.tags,
     scene: s.scene,
+    bookmark: a.bookmark || undefined,
     addedBy: "agent",
     // The connection's name, as the reader chose it ("Grok Bot", "Claude"), so the library can say who shelved it.
     addedVia: s.via || undefined,
@@ -335,12 +336,12 @@ function shelfItem(a: Article, s: { topic?: TopicKey; tags?: string[]; scene?: s
 
 function describe(r: ShelfRow) {
   const d = r.data;
-  const topic = isTopic(d.topic) ? d.topic : "unsorted";
+  const topic = typeof d.topic === "string" ? d.topic : "unsorted";
   return {
     title: String(d.title ?? ""),
     author: typeof d.author === "string" ? d.author : undefined,
     url: typeof d.sourceUrl === "string" ? d.sourceUrl : undefined,
-    topic: TOPIC[topic].name,
+    topic: shelfDef(topic).name,
     tags: Array.isArray(d.tags) ? d.tags : [],
     minutes: Math.max(1, Math.round(Number(d.words ?? 0) / 230)),
     status: r.pct >= 1 ? "finished" : r.pct > 0 ? "reading" : "unread",
@@ -357,7 +358,7 @@ async function searchLibrary(userId: string, args: Record<string, unknown>) {
   const shelf = (await shelfOf(userId)).filter((r) => r.data.origin !== "sample");
   const found = shelf
     .map(describe)
-    .filter((b) => (!topic || b.topic === TOPIC[topic].name) && (!status || b.status === status))
+    .filter((b) => (!topic || b.topic === shelfDef(topic).name) && (!status || b.status === status))
     .filter((b) => words.every((w) => `${b.title} ${b.author ?? ""} ${b.url ?? ""} ${b.topic} ${b.tags.join(" ")}`.toLowerCase().includes(w)))
     .sort((a, b) => b.addedAt.localeCompare(a.addedAt));
   const shown = found.slice(0, limit);
@@ -371,9 +372,9 @@ async function listTopics(userId: string) {
   const shelf = (await shelfOf(userId)).filter((r) => r.data.origin !== "sample");
   const counts = new Map<string, number>();
   for (const r of shelf) {
-    const k = isTopic(r.data.topic) ? r.data.topic : "unsorted";
+    const k = typeof r.data.topic === "string" ? r.data.topic : "unsorted";
     counts.set(k, (counts.get(k) ?? 0) + 1);
   }
-  const topics = TOPICS.map((t) => ({ key: t.key, name: t.name, count: counts.get(t.key) ?? 0 }));
+  const topics = [...TOPICS.map((t) => ({ key: t.key as string, name: t.name, count: counts.get(t.key) ?? 0 })), ...[...counts.keys()].filter((k) => !TOPICS.some((t) => t.key === k)).map((k) => ({ key: k, name: shelfDef(k).name, count: counts.get(k) ?? 0 }))];
   return toolResult(topics.filter((t) => t.count).map((t) => `${t.name} (${t.key}): ${t.count}`).join("\n") || "The library is empty.", { topics });
 }

@@ -36,6 +36,8 @@ export type Article = {
   image?: string;
   /** Where it came from: the bundled shelf, a link, pasted text, or a file. */
   origin?: "sample" | "url" | "paste" | "file";
+  /** Saved as a link to look at later: the page had too little text to read here, so this is a placeholder that points back out. */
+  bookmark?: boolean;
   /** PDF pages that looked hard (columns, tables, maths) and wait to be read again by a vision model (lib/upgrade.ts). */
   upgrade?: number[];
   addedAt?: number;

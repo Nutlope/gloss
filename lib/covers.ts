@@ -8,7 +8,7 @@
  */
 
 import { readApiKey } from "./ask";
-import { isTopic } from "./library";
+import { isCustomKey, isTopic } from "./library";
 import { useStore, type LibraryItem } from "./store";
 
 const DB = "gloss-covers";
@@ -63,7 +63,7 @@ export const forgetCover = (id: string) => tx("readwrite", (s) => s.delete(id));
 
 /** Paint one text's cover. "rest" means the free allowance is spent, so the queue should stop. */
 export async function paint(item: LibraryItem): Promise<"ok" | "rest" | "error"> {
-  if (!item.scene || !isTopic(item.topic)) return "error";
+  if (!item.scene || !(isTopic(item.topic) || isCustomKey(item.topic))) return "error";
   try {
     const res = await fetch("/api/covers", {
       method: "POST",

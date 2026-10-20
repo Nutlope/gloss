@@ -2,10 +2,18 @@
 
 import { memo, useEffect, useState } from "react";
 import { paintedUrl } from "@/lib/covers";
-import { iconSrc, lookOf, TOPIC, topicArtSrc, type Book, type Look, type TagKey, type TopicKey } from "@/lib/library";
+import { hasIcon, iconSrc, isCustomKey, lookOf, shadesFor, shelfDef, shelfNameFromKey, topicArtSrc, type Book, type Look } from "@/lib/library";
 
-/** One of the library's own emoji: a small clay figure for a topic or a tag. */
-export function Glyph({ k, size = 18, className = "" }: { k: TopicKey | TagKey; size?: number; className?: string }) {
+/** One of the library's own emoji: a small clay figure for a topic or a tag. A custom shelf draws its initial instead. */
+export function Glyph({ k, size = 18, className = "", label }: { k: string; size?: number; className?: string; label?: string }) {
+  if (!hasIcon(k)) {
+    const name = label ?? (isCustomKey(k) ? shelfNameFromKey(k) : k);
+    return (
+      <span aria-hidden className={`glyph glyph-custom ${className}`} style={{ width: size, height: size, background: shadesFor(k)[0], fontSize: Math.max(9, size * 0.52) }}>
+        {name.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
   // eslint-disable-next-line @next/next/no-img-element
   return <img src={iconSrc(k)} alt="" width={size} height={size} draggable={false} decoding="async" className={`glyph ${className}`} />;
 }
@@ -15,7 +23,7 @@ const lastName = (a: string) => a.split(/&|,| and /)[0].trim().split(/\s+/).slic
 /** A book seen end-on: cloth, a title running down it, the author at the foot. */
 export const Spine = memo(function Spine({ book, look = lookOf(book) }: { book: Book; look?: Look }) {
   const { w, h, color, fg, style } = look;
-  const t = TOPIC[book.topic];
+  const t = shelfDef(book.topic);
   const wide = w >= 52;
   const by = lastName(book.author);
   // The author across the foot, as large as fits; on a spine too slim for the
@@ -83,11 +91,19 @@ export function Plate({ book, reveal = false }: { book: Book; reveal?: boolean }
     return <img src={painted ?? book.cover} alt="" decoding="async" draggable={false} className={cls} />;
   }
   if (book.image && !broken) {
-    const t = TOPIC[book.topic];
+    const t = shelfDef(book.topic);
     return (
       <span className="duotone" style={{ ["--ink-c" as string]: t.shades[2] }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={book.image} alt="" decoding="async" loading="lazy" draggable={false} referrerPolicy="no-referrer" className={cls} onError={() => setBroken(true)} />
+      </span>
+    );
+  }
+  if (isCustomKey(book.topic)) {
+    const t = shelfDef(book.topic);
+    return (
+      <span className={`topic-custom-art ${cls}`} style={{ background: `linear-gradient(150deg, ${t.shades[1]}, ${t.shades[0]} 55%, ${t.shades[2]})` }} aria-hidden>
+        <span>{(book.topicName ?? t.name).charAt(0).toUpperCase()}</span>
       </span>
     );
   }
@@ -100,7 +116,7 @@ export function Plate({ book, reveal = false }: { book: Book; reveal?: boolean }
  * Sized by its container, so the same cover works at any scale.
  */
 export const Cover = memo(function Cover({ book, look = lookOf(book), draw = false }: { book: Book; look?: Look; draw?: boolean }) {
-  const t = TOPIC[book.topic];
+  const t = shelfDef(book.topic);
   return (
     <div className="cover" data-light={look.light || undefined} style={{ background: look.color, color: look.fg }}>
       <div className="cover-plate">
@@ -108,8 +124,9 @@ export const Cover = memo(function Cover({ book, look = lookOf(book), draw = fal
       </div>
       <div className="cover-type">
         <p className="cover-kicker">
-          <Glyph k={t.key} size={14} className="cover-glyph" />
-          <span>{t.name}</span>
+          <Glyph k={t.key} size={14} className="cover-glyph" label={book.topicName} />
+          <span>{book.topicName ?? t.name}</span>
+          {book.bookmark && <span>· Saved link</span>}
           {book.year && <span className="tabular-nums">{book.year}</span>}
         </p>
         <p className="cover-title">{book.title}</p>

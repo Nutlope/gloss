@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { ArrowRight, ArrowUpRight, ChevronDown, PencilLine, Star, Trash2 } from "lucide-react";
-import { fmtMinutes, hash, hostOf, lookOf, tagsOf, TOPIC, TOPICS, type Book, type TopicKey } from "@/lib/library";
+import { allShelves, fmtMinutes, hash, hostOf, lookOf, shelfDef, tagsOf, type Book, type CustomShelf } from "@/lib/library";
 import { Cover, Glyph, Spine } from "./Book";
 
 export type Origin = { el: HTMLElement; kind: "spine" | "cover" };
@@ -65,25 +65,30 @@ export function BookOpen({
   onRead,
   onShelve,
   onRemove,
+  shelves = [],
+  onCreateShelf,
 }: {
   book: Book;
   origin: Origin;
   owner: string;
   onClose: () => void;
   onRead: (b: Book) => void;
-  onShelve: (b: Book, patch: { topic?: TopicKey; favorite?: boolean; title?: string }) => void;
+  onShelve: (b: Book, patch: { topic?: string; favorite?: boolean; title?: string }) => void;
   onRemove: (b: Book) => void;
+  shelves?: CustomShelf[];
+  onCreateShelf?: (name: string) => CustomShelf | null;
 }) {
   const [g] = useState(() => measure(book));
   const [phase, setPhase] = useState<"in" | "open" | "out" | "leaving">("in");
   const [renaming, setRenaming] = useState(false);
+  const [newShelf, setNewShelf] = useState<string | null>(null);
   const bookRef = useRef<HTMLDivElement>(null);
   const shiftRef = useRef<HTMLDivElement>(null);
   const coverRef = useRef<HTMLDivElement>(null);
   const readRef = useRef<HTMLButtonElement>(null);
   const closing = useRef(false);
   const look = lookOf(book);
-  const t = TOPIC[book.topic];
+  const t = shelfDef(book.topic, shelves);
   const reduce = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const shift = g.wide ? g.W / 2 : 0;
   const coverZ = `translateZ(${g.D / 2}px)`;
@@ -199,16 +204,24 @@ export function BookOpen({
               <div className="ob-page-in scroll-thin">
                 <div className="ob-kicker">
                   {/* The topic it is shelved under, and the way to move it: one chip. */}
-                  <label className="ob-chip" style={{ ["--c" as string]: t.shades[0] }} data-tip="Move to another topic">
-                    <Glyph k={t.key} size={15} />
-                    <span>{t.name}</span>
+                  <label className="ob-chip" style={{ ["--c" as string]: t.shades[0] }} data-tip="Move to another shelf">
+                    <Glyph k={t.key} size={15} label={book.topicName ?? t.name} />
+                    <span>{book.topicName ?? t.name}</span>
                     <ChevronDown size={13} strokeWidth={2.2} className="ob-chip-caret" aria-hidden />
-                    <select value={book.topic} onChange={(e) => onShelve(book, { topic: e.target.value as TopicKey })} aria-label="Topic">
-                      {TOPICS.map((x) => (
+                    <select
+                      value={book.topic}
+                      onChange={(e) => {
+                        if (e.target.value === "__new__") return setNewShelf("");
+                        onShelve(book, { topic: e.target.value });
+                      }}
+                      aria-label="Shelf"
+                    >
+                      {allShelves(shelves).map((x) => (
                         <option key={x.key} value={x.key}>
-                          {x.name}
+                          {x.custom ? `${x.name} (your shelf)` : x.name}
                         </option>
                       ))}
+                      {onCreateShelf && <option value="__new__">+ New shelf…</option>}
                     </select>
                   </label>
                   <span className="ob-tools">
@@ -238,6 +251,25 @@ export function BookOpen({
                     </button>
                   </span>
                 </div>
+                {newShelf !== null && (
+                  <form
+                    className="shelf-new-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const made = onCreateShelf?.(newShelf);
+                      setNewShelf(null);
+                      if (made) onShelve(book, { topic: made.key });
+                    }}
+                  >
+                    <input autoFocus value={newShelf} onChange={(e) => setNewShelf(e.target.value)} placeholder="Name your shelf" aria-label="New shelf name" className="shelf-new-input" maxLength={40} />
+                    <button type="submit" className="add-btn" disabled={!newShelf.trim()}>
+                      Create &amp; move
+                    </button>
+                    <button type="button" className="ob-link" onClick={() => setNewShelf(null)}>
+                      Cancel
+                    </button>
+                  </form>
+                )}
                 {renaming ? (
                   <TitleField
                     title={book.title}
@@ -259,9 +291,10 @@ export function BookOpen({
                   {book.author}
                   <span className="ob-meta">
                     {book.year ? `${book.year} · ` : ""}
-                    {fmtMinutes(book.minutes)}
+                    {book.bookmark ? "Saved link" : fmtMinutes(book.minutes)}
                   </span>
                 </p>
+                {book.bookmark && <p className="ob-dek">Saved as a link: this page has too little text to read here. Open the original any time.</p>}
                 {book.dek && <p className="ob-dek">{book.dek}</p>}
                 {(tagsOf(book).length > 0 || book.tags.length > 0 || book.agent || book.sample) && (
                   <p className="ob-tags">
@@ -293,10 +326,22 @@ export function BookOpen({
                   </span>
                 </div>
                 <div className="ob-actions">
-                  <button ref={readRef} type="button" onClick={read} className="ob-read">
-                    {book.pct >= 1 ? "Read again" : reading ? "Continue reading" : "Start reading"}
-                    <ArrowRight size={16} />
-                  </button>
+                  {book.bookmark && book.url ? (
+                    <a ref={readRef as never} href={book.url} target="_blank" rel="noreferrer" className="ob-read">
+                      Open the original page
+                      <ArrowUpRight size={16} />
+                    </a>
+                  ) : (
+                    <button ref={readRef} type="button" onClick={read} className="ob-read">
+                      {book.pct >= 1 ? "Read again" : reading ? "Continue reading" : "Start reading"}
+                      <ArrowRight size={16} />
+                    </button>
+                  )}
+                  {book.bookmark && (
+                    <button type="button" onClick={read} className="ob-link mt-2">
+                      View the saved link note
+                    </button>
+                  )}
                   <div className="ob-sub">
                     {book.url ? (
                       <a href={book.url} target="_blank" rel="noreferrer" className="ob-link">
@@ -322,7 +367,7 @@ export function BookOpen({
                 {/* A bookplate pasted inside the cover: whose it is, and when it was shelved. */}
                 <div className="ex-libris">
                   <div className="ex-art">
-                    <Glyph k={t.key} size={60} />
+                    <Glyph k={t.key} size={60} label={book.topicName ?? t.name} />
                   </div>
                   <p className="ex-head">From the library of</p>
                   <p className="ex-name">{owner}</p>
