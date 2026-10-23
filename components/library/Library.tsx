@@ -8,7 +8,7 @@ import { TopBar } from "@/components/ui/TopBar";
 import { readingMinutes, tidyTitle, wordCount } from "@/lib/article";
 import { forgetCover, paintAll } from "@/lib/covers";
 import { SAMPLE_SHELF } from "@/lib/classics";
-import { SORTS, sortBooks, TAGS, TOPIC, TOPICS, topicOf, type Book, type Sort, type TagKey, type Topic, type TopicKey } from "@/lib/library";
+import { SORTS, sortBooks, TAGS, TOPIC, TOPICS, topicOf, wordsOf, type Book, type Sort, type TagKey, type Topic, type TopicKey } from "@/lib/library";
 import { hideSample, useLibraryPrefs } from "@/lib/library-prefs";
 import { SAMPLES } from "@/lib/samples";
 import { applySettings } from "@/lib/settings";
@@ -52,6 +52,8 @@ export function Library() {
   const [topic, setTopic] = useState<TopicKey | null>(null);
   const [only, setOnly] = useState<TopicKey | null>(null);
   const [tag, setTag] = useState<TagKey | null>(null);
+  /** One of the books' own tags, the words the sorter or the reader gave them. */
+  const [word, setWord] = useState<string | null>(null);
   const [sort, setSort] = useState<Sort>("topic");
   const [q, setQ] = useState("");
   const [open, setOpen] = useState<{ id: string; origin: Origin } | null>(null);
@@ -185,9 +187,9 @@ export function Library() {
     (b: Book) => {
       const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
       const t = tag ? TAGS.find((x) => x.key === tag)! : null;
-      return (!t || t.test(b)) && words.every((w) => `${b.title} ${b.author} ${TOPIC[b.topic].name} ${b.tags.join(" ")} ${b.year ?? ""}`.toLowerCase().includes(w));
+      return (!t || t.test(b)) && (!word || b.tags.includes(word)) && words.every((w) => `${b.title} ${b.author} ${TOPIC[b.topic].name} ${b.tags.join(" ")} ${b.year ?? ""}`.toLowerCase().includes(w));
     },
-    [q, tag]
+    [q, tag, word]
   );
   const shown = useMemo(() => new Set(sorted.filter((b) => (!only || b.topic === only) && match(b)).map((b) => b.id)), [sorted, only, match]);
 
@@ -214,7 +216,7 @@ export function Library() {
       setView(to.view);
       setTopic(to.topic ?? null);
       setQ("");
-      if (to.view === "shelf") setTag(null);
+      if (to.view === "shelf") (setTag(null), setWord(null));
     });
     window.scrollTo({ top: 0, behavior: "instant" as ScrollBehavior });
   }, []);
@@ -270,7 +272,14 @@ export function Library() {
           <Glyph k={t.key} size={18} /> {t.label} <span className="lib-n">{n}</span>
         </Chip>
       );
-    });
+    }).concat(
+      // The books' own words after the built-in tags, the most used first.
+      wordsOf(pool).map(([w, n]) => (
+        <Chip key={`w:${w}`} on={word === w} onClick={() => setWord(word === w ? null : w)}>
+          {w} <span className="lib-n">{n}</span>
+        </Chip>
+      ))
+    );
 
   return (
     <div className={`library relative z-[1] min-h-dvh transition-[opacity,filter] duration-300 ${leaving ? "opacity-0 blur-[2px]" : ""}`}>
@@ -350,7 +359,7 @@ export function Library() {
 
         {view === "shelf" && !T && (
           <ChipRow label="Filter">
-            <Chip on={!only && !tag} onClick={() => (setOnly(null), setTag(null))}>
+            <Chip on={!only && !tag && !word} onClick={() => (setOnly(null), setTag(null), setWord(null))}>
               All <span className="lib-n">{books.length}</span>
             </Chip>
             {topics.map(({ topic: t, books: bs }) => (
@@ -358,7 +367,7 @@ export function Library() {
                 <Glyph k={t.key} size={18} /> {t.name} <span className="lib-n">{bs.length}</span>
               </Chip>
             ))}
-            {TAGS.some((t) => books.some(t.test)) && <span aria-hidden className="mx-1.5 h-4 w-px shrink-0 self-center bg-rule-strong" />}
+            {(TAGS.some((t) => books.some(t.test)) || books.some((b) => b.tags.length > 0)) && <span aria-hidden className="mx-1.5 h-4 w-px shrink-0 self-center bg-rule-strong" />}
             {tagChips(books)}
           </ChipRow>
         )}
