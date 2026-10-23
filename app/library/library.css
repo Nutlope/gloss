@@ -1594,6 +1594,29 @@ button.plank-label:hover .plank-n {
   border-style: dashed;
   color: var(--ink-3);
 }
+.ob-tag-x {
+  display: inline-grid;
+  place-items: center;
+  margin: 0 -3px 0 3px;
+  vertical-align: -1px;
+  color: var(--ink-4);
+}
+.ob-tag-x:hover {
+  color: var(--ink);
+}
+.ob-tag-add {
+  width: 9ch;
+  padding: 3px 9px;
+  border: 1px dashed var(--rule);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 12px;
+  color: var(--ink-2);
+  outline: none;
+}
+.ob-tag-add:focus {
+  border-color: var(--rubric);
+}
 /* ---------- news from your agent ---------- */
 
 .lib-news {

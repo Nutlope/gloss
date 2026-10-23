@@ -246,6 +246,13 @@ export const TAGS: { key: TagKey; label: string; test: (b: Book) => boolean }[] 
 
 export const tagsOf = (b: Book) => TAGS.filter((t) => t.key !== "agent" && t.test(b));
 
+/** The books' own words with how many carry each, the most used first. */
+export function wordsOf(books: Book[], max = 12): [string, number][] {
+  const n = new Map<string, number>();
+  for (const b of books) for (const w of b.tags) n.set(w, (n.get(w) ?? 0) + 1);
+  return [...n].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0])).slice(0, max);
+}
+
 export const fmtMinutes = (m: number) => (m < 60 ? `${m} min` : `${Math.floor(m / 60)} h${m % 60 ? ` ${m % 60} min` : ""}`);
 
 export const hostOf = (url?: string) => {
@@ -267,17 +274,17 @@ export function yearOf(published?: string): number | undefined {
 
 export type Shelving = { topic: TopicKey; tags: string[]; scene?: string };
 
-/** Tags: a few short lowercase words, never the topic's own name. */
-export function cleanTags(v: unknown, topic: TopicKey): string[] {
+/** Tags: a few short lowercase words in any script, never the topic's own name. The sorter gets 3, the reader more. */
+export function cleanTags(v: unknown, topic: TopicKey, max = 3): string[] {
   if (!Array.isArray(v)) return [];
   const name = TOPIC[topic].name.toLowerCase();
   const out: string[] = [];
   for (const t of v) {
     if (typeof t !== "string") continue;
-    const s = t.toLowerCase().replace(/[^a-z0-9 &+.-]/g, "").replace(/\s+/g, " ").trim();
+    const s = t.toLowerCase().replace(/[^\p{L}\p{N} &+.-]/gu, "").replace(/\s+/g, " ").trim();
     if (s.length > 32) continue;
     if (s && s !== name && !out.includes(s)) out.push(s);
-    if (out.length === 3) break;
+    if (out.length === max) break;
   }
   return out;
 }
