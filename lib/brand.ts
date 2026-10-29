@@ -1,7 +1,7 @@
 /** Every outbound URL in one place. */
 export const BRAND = {
   name: "Gloss",
-  togetherUrl: "https://www.together.ai",
+  togetherUrl: "https://togetherai.link/?utm_source=gloss&utm_medium=referral&utm_campaign=example-app",
   keysUrl: "https://api.together.ai/settings/api-keys",
   modelsUrl: "https://www.together.ai/models",
 } as const;
