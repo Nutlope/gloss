@@ -2,8 +2,8 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { ArrowRight, ArrowUpRight, ChevronDown, PencilLine, Star, Trash2 } from "lucide-react";
-import { fmtMinutes, hash, hostOf, lookOf, tagsOf, TOPIC, TOPICS, type Book, type TopicKey } from "@/lib/library";
+import { ArrowRight, ArrowUpRight, ChevronDown, PencilLine, Star, Trash2, X } from "lucide-react";
+import { cleanTags, fmtMinutes, hash, hostOf, lookOf, tagsOf, TOPIC, TOPICS, type Book, type TopicKey } from "@/lib/library";
 import { Cover, Glyph, Spine } from "./Book";
 
 export type Origin = { el: HTMLElement; kind: "spine" | "cover" };
@@ -71,7 +71,7 @@ export function BookOpen({
   owner: string;
   onClose: () => void;
   onRead: (b: Book) => void;
-  onShelve: (b: Book, patch: { topic?: TopicKey; favorite?: boolean; title?: string }) => void;
+  onShelve: (b: Book, patch: { topic?: TopicKey; favorite?: boolean; title?: string; tags?: string[] }) => void;
   onRemove: (b: Book) => void;
 }) {
   const [g] = useState(() => measure(book));
@@ -263,26 +263,45 @@ export function BookOpen({
                   </span>
                 </p>
                 {book.dek && <p className="ob-dek">{book.dek}</p>}
-                {(tagsOf(book).length > 0 || book.tags.length > 0 || book.agent || book.sample) && (
-                  <p className="ob-tags">
-                    {tagsOf(book).map((x) => (
-                      <span key={x.key}>
-                        <Glyph k={x.key} size={15} /> {x.label}
-                      </span>
-                    ))}
-                    {book.agent && (
-                      <span>
-                        <Glyph k="agent" size={15} /> Shelved by your agent
-                      </span>
-                    )}
-                    {book.sample && <span className="is-word">a sample from Gloss</span>}
-                    {book.tags.map((x) => (
-                      <span key={x} className="is-word">
-                        {x}
-                      </span>
-                    ))}
-                  </p>
-                )}
+                {/* Never empty: a sample says so, and anything else has a field for your own tags. */}
+                <p className="ob-tags">
+                  {tagsOf(book).map((x) => (
+                    <span key={x.key}>
+                      <Glyph k={x.key} size={15} /> {x.label}
+                    </span>
+                  ))}
+                  {book.agent && (
+                    <span>
+                      <Glyph k="agent" size={15} /> Shelved by your agent
+                    </span>
+                  )}
+                  {book.sample && <span className="is-word">a sample from Gloss</span>}
+                  {book.tags.map((x) => (
+                    <span key={x} className="is-word">
+                      {x}
+                      {!book.sample && (
+                        <button type="button" className="ob-tag-x" aria-label={`Remove the tag ${x}`} onClick={() => onShelve(book, { tags: book.tags.filter((y) => y !== x) })}>
+                          <X size={11} strokeWidth={2.4} />
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                  {!book.sample && (
+                    <input
+                      className="ob-tag-add"
+                      placeholder="+ tag"
+                      aria-label="Add a tag"
+                      enterKeyHint="done"
+                      onKeyDown={(e) => {
+                        if (e.key !== "Enter") return;
+                        e.preventDefault();
+                        const tags = cleanTags([...book.tags, ...e.currentTarget.value.split(",")], book.topic, 12);
+                        e.currentTarget.value = "";
+                        if (tags.length !== book.tags.length) onShelve(book, { tags });
+                      }}
+                    />
+                  )}
+                </p>
                 <div className="ob-progress">
                   <span className="ob-bar" aria-hidden>
                     <span style={{ width: `${Math.round(book.pct * 100)}%` }} />
