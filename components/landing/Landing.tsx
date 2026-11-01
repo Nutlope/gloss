@@ -122,7 +122,7 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
     async (f: File) => {
       setError(null);
       setErrorNeedsKey(false);
-      setBusy({ label: `Opening ${f.name}`, pct: f.name.toLowerCase().endsWith(".pdf") ? 0 : undefined });
+      setBusy({ label: `Opening ${f.name}`, pct: /\.(pdf|epub)$/i.test(f.name) ? 0 : undefined });
       // The PDF reader reports what it is doing: "Reading 12 pages", then any scanned ones.
       const r = await importFromFile(f, (p, label) => setBusy({ label: label ?? `Reading ${f.name}`, pct: p }));
       if (r.ok) finish(r.article, r.file);
@@ -268,7 +268,7 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
       <input
         ref={fileRef}
         type="file"
-        accept=".pdf,.txt,.md,.markdown,application/pdf,text/plain,text/markdown"
+        accept=".pdf,.epub,.txt,.md,.markdown,application/pdf,application/epub+zip,text/plain,text/markdown"
         className="hidden"
         onChange={(e) => {
           const f = e.target.files?.[0];

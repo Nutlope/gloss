@@ -195,7 +195,13 @@ export function sameImage(src: string): string {
   }
 }
 
-export function htmlToBlocks(root: El, base?: string): Block[] {
+/**
+ * `keepApparatus` turns off the end-of-article trimming below. It is for whole
+ * documents we trust to be reading matter (a book chapter): there a heading
+ * called "Notes" is the chapter, and a chapter that is nothing but a list (a
+ * glossary, a chronology) is content, not a "see also" footer.
+ */
+export function htmlToBlocks(root: El, base?: string, opts: { keepApparatus?: boolean } = {}): Block[] {
   const blocks: Block[] = [];
   let i = 0;
   const seen = new Set<string>();
@@ -277,11 +283,13 @@ export function htmlToBlocks(root: El, base?: string): Block[] {
   };
 
   visit(root);
+  const textOf = (b: Block) => b.runs.map((r) => r.text).join("").trim();
+  // Empties still go; everything else in a trusted document stays, in order.
+  if (opts.keepApparatus) return blocks.filter((b) => b.type === "figure" || b.type === "table" || textOf(b).length > 1);
   // Reference apparatus at the end (Wikipedia and friends) is not reading matter.
   const TAIL = /^(references|notes|footnotes|citations|sources|bibliography|see also|external links|further reading)$/i;
-  const tailAt = blocks.findIndex((b, idx) => idx > 3 && (b.type === "h2" || b.type === "h3") && TAIL.test(b.runs.map((r) => r.text).join("").trim()));
+  const tailAt = blocks.findIndex((b, idx) => idx > 3 && (b.type === "h2" || b.type === "h3") && TAIL.test(textOf(b)));
   const body = tailAt > 0 ? blocks.slice(0, tailAt) : blocks;
-  const textOf = (b: Block) => b.runs.map((r) => r.text).join("").trim();
   const isCitation = (t: string) => /^(↑|\^)/.test(t) || /^\d+( \d+)+ /.test(t) || /(Retrieved|Archived from|ISBN|doi:)/.test(t);
   let cleaned = body.filter((b) => {
     const t = textOf(b);

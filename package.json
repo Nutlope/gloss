@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start --port 3100",
     "lint": "tsc --noEmit",
+    "test": "node --test tests/",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/migrate.mjs"
   },
   "dependencies": {

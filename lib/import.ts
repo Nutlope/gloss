@@ -36,13 +36,24 @@ export async function importFromFile(file: File, onProgress?: (p: number, label?
         throw e;
       }
     }
+    if (name.endsWith(".epub") || file.type === "application/epub+zip") {
+      const { epubToArticle, EpubError } = await import("./epub");
+      // The browser's own parser turns each chapter into a tree; the EPUB module stays free of DOM globals so it can be tested under node.
+      const parse = (markup: string, type: "text/xml" | "application/xhtml+xml" | "text/html") => new DOMParser().parseFromString(markup, type).documentElement;
+      try {
+        return { ok: true, article: await epubToArticle(file, parse, onProgress) };
+      } catch (e) {
+        if (e instanceof EpubError) return { ok: false, error: e.message };
+        throw e;
+      }
+    }
     if (/\.(txt|md|markdown|text)$/.test(name) || file.type.startsWith("text/")) {
       const a = textToArticle(await file.text(), { origin: "file" });
       if (a.title === "Untitled") a.title = file.name.replace(/\.(txt|md|markdown|text)$/i, "").replace(/[_-]+/g, " ");
       a.source = file.name;
       return { ok: true, article: a };
     }
-    return { ok: false, error: "Gloss reads PDF, .txt and .md files." };
+    return { ok: false, error: "Gloss reads PDF, EPUB, .txt and .md files." };
   } catch (e) {
     return { ok: false, error: e instanceof Error ? e.message : "Could not read that file." };
   }

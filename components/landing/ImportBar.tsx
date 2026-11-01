@@ -71,7 +71,7 @@ export const ImportBar = forwardRef<HTMLInputElement, Props>(function ImportBar(
       </form>
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[13.5px] text-ink-3">
-        <button type="button" onClick={onPickFile} disabled={!!busy} className="inline-flex items-center gap-1.5 transition-colors hover:text-ink">
+        <button type="button" onClick={onPickFile} disabled={!!busy} data-tip="PDF, EPUB, .txt or .md" className="inline-flex items-center gap-1.5 transition-colors hover:text-ink">
           <FileUp size={15} /> Open a PDF
         </button>
         <button type="button" onClick={onPasteText} disabled={!!busy} className="inline-flex items-center gap-1.5 transition-colors hover:text-ink">
