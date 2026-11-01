@@ -1,6 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { saveCover } from "@/lib/db";
-import { isTopic } from "@/lib/library";
+import { isCustomKey, isTopic } from "@/lib/library";
 import { COVER_USD, paintCover } from "@/lib/paint";
 import { chargeFree, checkFree, needKey } from "@/lib/quota";
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
   }
   const id = typeof body.id === "string" ? body.id.slice(0, 120) : "";
   const scene = typeof body.scene === "string" ? body.scene.slice(0, 300).trim() : "";
-  if (!id || !scene || !isTopic(body.topic)) return Response.json({ error: "id, scene and topic are required." }, { status: 400 });
+  if (!id || !scene || !(isTopic(body.topic) || isCustomKey(body.topic))) return Response.json({ error: "id, scene and topic are required." }, { status: 400 });
 
   const apiKey = body.apiKey?.trim() || undefined;
   let free: Awaited<ReturnType<typeof checkFree>> | null = null;

@@ -5,18 +5,18 @@
  * way of an import: a failure leaves the text in Unsorted.
  */
 
-import { cleanTags, TOPICS, topicOf, type Shelving } from "./library";
+import { cleanTags, TOPICS, topicOf, type CustomShelf, type Shelving } from "./library";
 import { EXCERPT_CHARS } from "./excerpt";
 import { completeJSON, DEFAULT_MODEL } from "./together";
 
-export type ShelveInput = { title: string; author?: string; source?: string; dek?: string; excerpt?: string };
+export type ShelveInput = { title: string; author?: string; source?: string; dek?: string; excerpt?: string; shelves?: CustomShelf[] };
 
-const SYSTEM = `You shelve texts in a reader's personal library.
+const systemFor = (shelves: CustomShelf[] = []) => `You shelve texts in a reader's personal library.
 
 Pick the one topic that fits best, by its key:
 ${TOPICS.filter((t) => t.key !== "unsorted")
   .map((t) => `- ${t.key}: ${t.hint}`)
-  .join("\n")}
+  .join("\n")}${shelves.length ? `\nThe reader also made these shelves of their own. Prefer one of them when it clearly fits better than a topic above:\n${shelves.map((s) => `- ${s.key}: the reader's own shelf named "${s.name.replace(/"/g, "")}"`).join("\n")}` : ""}
 
 Then up to 3 tags: short lowercase words or phrases that say what the text is about, more specific than the topic (e.g. "speculative decoding", "hiring", "stoicism").
 
@@ -41,12 +41,12 @@ export async function classify(
     signal: opts.signal,
     maxTokens: 220,
     messages: [
-      { role: "system", content: SYSTEM },
+      { role: "system", content: systemFor(input.shelves) },
       { role: "user", content: lines.join("\n") },
     ],
   });
   if (!r.ok) return r;
-  const topic = topicOf(r.data.topic);
+  const topic = topicOf(r.data.topic, input.shelves ?? []);
   const scene = typeof r.data.scene === "string" ? r.data.scene.replace(/\s+/g, " ").trim().slice(0, 300) : undefined;
   return { ok: true, shelving: { topic, tags: cleanTags(r.data.tags, topic), scene: scene || undefined }, usd: r.usage.costUsd };
 }

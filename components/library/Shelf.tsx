@@ -1,7 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useMemo, useRef, useState, ViewTransition } from "react";
-import { fmtMinutes, groupOf, lookOf, type Book, type Sort, type TagKey, type TopicKey } from "@/lib/library";
+import { fmtMinutes, groupOf, lookOf, type Book, type Sort } from "@/lib/library";
 import { Glyph, Spine } from "./Book";
 
 const PAD = 28;
@@ -38,7 +38,7 @@ function textWidth(s: string) {
 /** How wide a shelf label is, as drawn: its icon, its words, its count, and its padding. */
 const labelWidth = (l: { label: string; icon?: string; count: number }) => (l.icon ? 21 : 0) + textWidth(l.label) + 6 + textWidth(String(l.count)) + 17;
 
-type Label = { key: string; label: string; icon?: TopicKey | TagKey; x: number; row: number; count: number };
+type Label = { key: string; label: string; icon?: string; x: number; row: number; count: number };
 
 /**
  * Where every book stands: left to right along a plank, a gap between runs

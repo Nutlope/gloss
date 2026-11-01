@@ -95,7 +95,7 @@ export function Landing({ signedIn: signedInAtLoad = false }: { signedIn?: boole
       setBusy(null);
       if (err) return setError(err);
       setUrl("");
-      setSaved({ id: r.article.id, title: r.article.title });
+      setSaved({ id: r.article.id, title: r.article.title, bookmark: Boolean(r.article.bookmark) });
     },
     [finish]
   );

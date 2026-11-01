@@ -81,7 +81,7 @@ export function AddButton({ onClick, compact }: { onClick: () => void; compact?:
 
 /* ---------- links ---------- */
 
-type Row = { url: string; state: "waiting" | "reading" | "saved" | "already" | "failed"; title?: string; error?: string };
+type Row = { url: string; state: "waiting" | "reading" | "saved" | "already" | "failed"; title?: string; error?: string; bookmark?: boolean };
 
 /** How many links one Save reads in. A Pocket export can hold thousands; the rest wait in the box for the next Save. */
 const BATCH = 100;
@@ -135,7 +135,7 @@ function Links() {
         set(x.i, { state: "reading" });
         const r = await importFromUrl(x.r.url, (_, label) => label && set(x!.i, { title: label }));
         const err = r.ok ? await keep(r.article, r.file) : r.error;
-        set(x.i, err ? { state: "failed", error: err, title: undefined } : { state: "saved", title: r.ok ? r.article.title : undefined });
+        set(x.i, err ? { state: "failed", error: err, title: undefined } : { state: "saved", title: r.ok ? r.article.title : undefined, bookmark: r.ok ? Boolean(r.article.bookmark) : undefined });
       }
     };
     // A few at a time, so a slow site never holds the rest up.
@@ -211,7 +211,7 @@ function Links() {
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-[13.5px] text-ink">{r.title ?? r.url.replace(/^https?:\/\/(www\.)?/, "")}</span>
                 <span className="block truncate text-[12px] text-ink-3">
-                  {r.state === "saved" ? "On the shelf" : r.state === "already" ? "Already in your library" : r.state === "failed" ? r.error : r.state === "reading" ? "Reading" : "Waiting"}
+                  {r.state === "saved" ? (r.bookmark ? "Saved as a link — too little text to read here, kept to look at later" : "On the shelf") : r.state === "already" ? "Already in your library" : r.state === "failed" ? r.error : r.state === "reading" ? "Reading" : "Waiting"}
                 </span>
               </span>
             </li>

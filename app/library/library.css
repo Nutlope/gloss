@@ -2081,3 +2081,47 @@ button.starter-card:active {
     transition: opacity 0.2s ease;
   }
 }
+
+/* ---------- your own shelves, and saved links ---------- */
+.glyph-custom {
+  display: inline-grid !important;
+  place-items: center;
+  border-radius: 999px;
+  color: #fff;
+  font-family: var(--font-sans);
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: -0.22em;
+}
+.topic-custom-art {
+  display: grid;
+  width: 100%;
+  height: 100%;
+  place-items: center;
+  color: rgb(255 255 255 / 0.92);
+  font-family: var(--font-serif);
+  font-size: 64px;
+  font-weight: 500;
+}
+.topic-card-art .topic-custom-art, .topic-head-art .topic-custom-art { min-height: 100%; }
+.shelf-new-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  animation: rise 0.35s var(--ease-out) both;
+}
+.shelf-new-input {
+  height: 36px;
+  min-width: min(260px, 70vw);
+  padding: 0 12px;
+  border-radius: 999px;
+  border: 1px solid var(--rule-strong);
+  background: var(--bg-raised);
+  color: var(--ink);
+  font-size: 13.5px;
+  outline: none;
+}
+.shelf-new-input:focus { border-color: var(--ink-3); }
+.shelf-manage { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }

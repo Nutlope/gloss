@@ -3,13 +3,13 @@
 import { useUser } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 import { startTransition, useCallback, useEffect, useMemo, useRef, useState, ViewTransition } from "react";
-import { ChevronLeft, ChevronRight, LayoutGrid, Library as LibraryIcon, Search, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, LayoutGrid, Library as LibraryIcon, PencilLine, Plus, Search, Trash2, X } from "lucide-react";
 import { TopBar } from "@/components/ui/TopBar";
 import { readingMinutes, tidyTitle, wordCount } from "@/lib/article";
 import { forgetCover, paintAll } from "@/lib/covers";
 import { SAMPLE_SHELF } from "@/lib/classics";
-import { SORTS, sortBooks, TAGS, TOPIC, TOPICS, topicOf, type Book, type Sort, type TagKey, type Topic, type TopicKey } from "@/lib/library";
-import { hideSample, useLibraryPrefs } from "@/lib/library-prefs";
+import { allShelves, shelfDef, SORTS, sortBooks, TAGS, topicOf, type Book, type ShelfDef, type Sort, type TagKey } from "@/lib/library";
+import { createCustomShelf, deleteCustomShelf, hideSample, renameCustomShelf, useLibraryPrefs } from "@/lib/library-prefs";
 import { SAMPLES } from "@/lib/samples";
 import { applySettings } from "@/lib/settings";
 import { backfill } from "@/lib/shelving";
@@ -49,8 +49,10 @@ export function Library() {
   const prefs = useLibraryPrefs();
 
   const [view, setView] = useState<View>("shelf");
-  const [topic, setTopic] = useState<TopicKey | null>(null);
-  const [only, setOnly] = useState<TopicKey | null>(null);
+  const [topic, setTopic] = useState<string | null>(null);
+  const [only, setOnly] = useState<string | null>(null);
+  const [newShelfName, setNewShelfName] = useState<string | null>(null);
+  const [renamingShelf, setRenamingShelf] = useState<string | null>(null);
   const [tag, setTag] = useState<TagKey | null>(null);
   const [sort, setSort] = useState<Sort>("topic");
   const [q, setQ] = useState("");
@@ -137,26 +139,31 @@ export function Library() {
   const books = useMemo(() => {
     const read = (id: string) => (hydrated ? progress[id]?.pct ?? 0 : 0);
     const marks = (id: string) => (hydrated ? (highlights[id] ?? []).length : 0);
-    const mine: Book[] = library.map((x) => ({
-      id: x.id,
-      title: tidyTitle(x.title),
-      author: bylineOf(x),
-      year: x.year,
-      url: x.sourceUrl,
-      topic: topicOf(x.topic),
-      minutes: readingMinutes(x.words),
-      dek: x.dek,
-      tags: x.tags ?? [],
-      favorite: Boolean(x.favorite),
-      pct: read(x.id),
-      highlights: marks(x.id),
-      added: x.addedAt,
-      finished: x.finishedAt,
-      image: x.image,
-      cover: x.cover,
-      agent: x.addedBy === "agent",
-      sample: false,
-    }));
+    const mine: Book[] = library.map((x) => {
+      const topic = topicOf(x.topic, prefs.customShelves);
+      return {
+        id: x.id,
+        title: tidyTitle(x.title),
+        author: bylineOf(x),
+        year: x.year,
+        url: x.sourceUrl,
+        topic,
+        topicName: shelfDef(topic, prefs.customShelves).name,
+        minutes: readingMinutes(x.words),
+        dek: x.dek,
+        tags: x.tags ?? [],
+        favorite: Boolean(x.favorite),
+        pct: read(x.id),
+        highlights: marks(x.id),
+        added: x.addedAt,
+        finished: x.finishedAt,
+        image: x.image,
+        cover: x.cover,
+        agent: x.addedBy === "agent",
+        sample: false,
+        bookmark: Boolean(x.bookmark),
+      };
+    });
     const samples: Book[] = SAMPLES.filter((a) => !prefs.hiddenSamples.includes(a.id) && (own.length < SAMPLES_UNTIL || read(a.id) > 0)).map((a) => ({
       id: a.id,
       title: a.title,
@@ -177,7 +184,7 @@ export function Library() {
     return [...mine, ...samples];
     // `own.length` is derived from `library`.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [library, progress, highlights, hydrated, prefs.hiddenSamples]);
+  }, [library, progress, highlights, hydrated, prefs.hiddenSamples, prefs.customShelves]);
 
   const sorted = useMemo(() => sortBooks(books, sort), [books, sort]);
 
@@ -185,15 +192,18 @@ export function Library() {
     (b: Book) => {
       const words = q.toLowerCase().trim().split(/\s+/).filter(Boolean);
       const t = tag ? TAGS.find((x) => x.key === tag)! : null;
-      return (!t || t.test(b)) && words.every((w) => `${b.title} ${b.author} ${TOPIC[b.topic].name} ${b.tags.join(" ")} ${b.year ?? ""}`.toLowerCase().includes(w));
+      return (!t || t.test(b)) && words.every((w) => `${b.title} ${b.author} ${b.topicName ?? shelfDef(b.topic).name} ${b.tags.join(" ")} ${b.year ?? ""} ${b.bookmark ? "saved link bookmark" : ""}`.toLowerCase().includes(w));
     },
     [q, tag]
   );
   const shown = useMemo(() => new Set(sorted.filter((b) => (!only || b.topic === only) && match(b)).map((b) => b.id)), [sorted, only, match]);
 
   const topics = useMemo(
-    () => TOPICS.map((t) => ({ topic: t, books: books.filter((b) => b.topic === t.key).sort((a, b) => b.added - a.added) })).filter((x) => x.books.length),
-    [books]
+    () =>
+      allShelves(prefs.customShelves)
+        .map((t) => ({ topic: t, books: books.filter((b) => b.topic === t.key).sort((a, b) => b.added - a.added) }))
+        .filter((x) => x.books.length || x.topic.custom),
+    [books, prefs.customShelves]
   );
 
   const stats = useMemo(() => {
@@ -209,7 +219,7 @@ export function Library() {
 
   const fromAgent = useMemo(() => (lastSeen ? books.filter((b) => b.agent && b.added > lastSeen) : []), [books, lastSeen]);
 
-  const go = useCallback((to: { view: View; topic?: TopicKey | null }) => {
+  const go = useCallback((to: { view: View; topic?: string | null }) => {
     startTransition(() => {
       setView(to.view);
       setTopic(to.topic ?? null);
@@ -243,7 +253,7 @@ export function Library() {
   const openBook = open ? books.find((b) => b.id === open.id) ?? null : null;
   const first = user?.firstName;
   const owner = user?.fullName || first || "A Gloss reader";
-  const T = topic ? TOPIC[topic] : null;
+  const T = topic ? shelfDef(topic, prefs.customShelves) : null;
   const topicBooks = useMemo(() => (topic ? books.filter((b) => b.topic === topic).sort((a, b) => b.added - a.added).filter(match) : []), [topic, books, match]);
   const screen = topic ? `topic-${topic}` : view;
 
@@ -349,18 +359,42 @@ export function Library() {
         )}
 
         {view === "shelf" && !T && (
-          <ChipRow label="Filter">
-            <Chip on={!only && !tag} onClick={() => (setOnly(null), setTag(null))}>
-              All <span className="lib-n">{books.length}</span>
-            </Chip>
-            {topics.map(({ topic: t, books: bs }) => (
-              <Chip key={t.key} on={only === t.key} color={t.shades[0]} onClick={() => setOnly(only === t.key ? null : t.key)}>
-                <Glyph k={t.key} size={18} /> {t.name} <span className="lib-n">{bs.length}</span>
+          <>
+            <ChipRow label="Filter">
+              <Chip on={!only && !tag} onClick={() => (setOnly(null), setTag(null))}>
+                All <span className="lib-n">{books.length}</span>
               </Chip>
-            ))}
-            {TAGS.some((t) => books.some(t.test)) && <span aria-hidden className="mx-1.5 h-4 w-px shrink-0 self-center bg-rule-strong" />}
-            {tagChips(books)}
-          </ChipRow>
+              {topics.map(({ topic: t, books: bs }) => (
+                <Chip key={t.key} on={only === t.key} color={t.shades[0]} onClick={() => setOnly(only === t.key ? null : t.key)}>
+                  <Glyph k={t.key} size={18} label={t.name} /> {t.name} <span className="lib-n">{bs.length}</span>
+                </Chip>
+              ))}
+              <Chip on={false} onClick={() => setNewShelfName("")}>
+                <Plus size={14} /> New shelf
+              </Chip>
+              {TAGS.some((t) => books.some(t.test)) && <span aria-hidden className="mx-1.5 h-4 w-px shrink-0 self-center bg-rule-strong" />}
+              {tagChips(books)}
+            </ChipRow>
+            {newShelfName !== null && (
+              <form
+                className="shelf-new-form"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  const made = createCustomShelf(newShelfName);
+                  setNewShelfName(null);
+                  if (made) setOnly(made.key);
+                }}
+              >
+                <input autoFocus value={newShelfName} onChange={(e) => setNewShelfName(e.target.value)} placeholder="Name your shelf, e.g. Research to revisit" aria-label="New shelf name" className="shelf-new-input" maxLength={40} />
+                <button type="submit" className="add-btn" disabled={!newShelfName.trim()}>
+                  Create shelf
+                </button>
+                <button type="button" className="lib-chip" onClick={() => setNewShelfName(null)}>
+                  Cancel
+                </button>
+              </form>
+            )}
+          </>
         )}
 
         <ViewTransition key={screen} enter="lib-enter" exit="lib-exit" default="none">
@@ -370,10 +404,52 @@ export function Library() {
                 topic={T}
                 books={topicBooks}
                 tools={
-                  <div className="lib-tools mt-8">
-                    {searchBox}
-                    <div className="lib-chips no-scrollbar">{tagChips(books.filter((b) => b.topic === T.key))}</div>
-                  </div>
+                  <>
+                    <div className="lib-tools mt-8">
+                      {searchBox}
+                      <div className="lib-chips no-scrollbar">{tagChips(books.filter((b) => b.topic === T.key))}</div>
+                    </div>
+                    {T.custom && (
+                      <div className="shelf-manage" aria-label="Manage your shelf">
+                        {renamingShelf !== null ? (
+                          <form
+                            className="shelf-new-form"
+                            onSubmit={(e) => {
+                              e.preventDefault();
+                              renameCustomShelf(T.key, renamingShelf);
+                              setRenamingShelf(null);
+                            }}
+                          >
+                            <input autoFocus value={renamingShelf} onChange={(e) => setRenamingShelf(e.target.value)} aria-label="Shelf name" className="shelf-new-input" maxLength={40} />
+                            <button type="submit" className="add-btn" disabled={!renamingShelf.trim()}>
+                              Rename
+                            </button>
+                            <button type="button" className="lib-chip" onClick={() => setRenamingShelf(null)}>
+                              Cancel
+                            </button>
+                          </form>
+                        ) : (
+                          <>
+                            <button type="button" className="lib-chip" onClick={() => setRenamingShelf(T.name)}>
+                              <PencilLine size={13} /> Rename shelf
+                            </button>
+                            <button
+                              type="button"
+                              className="lib-chip"
+                              onClick={() => {
+                                for (const b of books.filter((x) => x.topic === T.key && !x.sample)) shelveItem(b.id, { topic: "unsorted" });
+                                deleteCustomShelf(T.key);
+                                go({ view: "topics" });
+                              }}
+                            >
+                              <Trash2 size={13} /> Delete shelf
+                            </button>
+                            <span className="self-center text-[12.5px] text-ink-3">Deleting moves its books to Unsorted.</span>
+                          </>
+                        )}
+                      </div>
+                    )}
+                  </>
                 }
                 onOpen={(b, el) => setOpen({ id: b.id, origin: { el, kind: "cover" } })}
               />
@@ -387,11 +463,13 @@ export function Library() {
                     openId={open?.id ?? null}
                     fresh={fresh}
                     onOpen={(b, el) => setOpen({ id: b.id, origin: { el, kind: "spine" } })}
-                    onLabel={sort === "topic" ? (k) => go({ view: "topics", topic: k as TopicKey }) : undefined}
+                    onLabel={sort === "topic" ? (k) => go({ view: "topics", topic: k }) : undefined}
                   />
                 )}
                 {hydrated && shown.size === 0 && books.length > 0 && (
-                  <p className="py-6 text-center text-[14px] text-ink-3">Nothing on the shelves matches{q ? <> &ldquo;{q}&rdquo;</> : ""}.</p>
+                  <p className="py-6 text-center text-[14px] text-ink-3">
+                    {only && shelfDef(only, prefs.customShelves).custom && !q ? <>This shelf is empty. Open a book and move it here, or pick &ldquo;+ New shelf…&rdquo; while a book is in your hands.</> : <>Nothing on the shelves matches{q ? <> &ldquo;{q}&rdquo;</> : ""}.</>}
+                  </p>
                 )}
                 {hydrated && own.length < SAMPLES_UNTIL ? (
                   <Starter count={own.length} signedIn={Boolean(isSignedIn)} onAdd={setAdding} />
@@ -400,7 +478,33 @@ export function Library() {
                 )}
               </>
             ) : (
-              <TopicGrid topics={topics} onPick={(t: Topic) => go({ view: "topics", topic: t.key })} />
+              <>
+                <div className="mt-6 flex justify-end">
+                  <button type="button" className="lib-chip" onClick={() => setNewShelfName("")}>
+                    <Plus size={14} /> New shelf
+                  </button>
+                </div>
+                {newShelfName !== null && (
+                  <form
+                    className="shelf-new-form"
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      const made = createCustomShelf(newShelfName);
+                      setNewShelfName(null);
+                      if (made) go({ view: "topics", topic: made.key });
+                    }}
+                  >
+                    <input autoFocus value={newShelfName} onChange={(e) => setNewShelfName(e.target.value)} placeholder="Name your shelf, e.g. Research to revisit" aria-label="New shelf name" className="shelf-new-input" maxLength={40} />
+                    <button type="submit" className="add-btn" disabled={!newShelfName.trim()}>
+                      Create shelf
+                    </button>
+                    <button type="button" className="lib-chip" onClick={() => setNewShelfName(null)}>
+                      Cancel
+                    </button>
+                  </form>
+                )}
+                <TopicGrid topics={topics} onPick={(t: ShelfDef) => go({ view: "topics", topic: t.key })} />
+              </>
             )}
           </div>
         </ViewTransition>
@@ -413,6 +517,8 @@ export function Library() {
           origin={open.origin}
           owner={owner}
           onRead={read}
+          shelves={prefs.customShelves}
+          onCreateShelf={(name) => createCustomShelf(name)}
           onShelve={(b, patch) => shelveItem(b.id, patch)}
           onRemove={(b) => {
             setOpen(null);

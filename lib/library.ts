@@ -77,7 +77,77 @@ export const TOPICS: Topic[] = [
 
 export const TOPIC = Object.fromEntries(TOPICS.map((t) => [t.key, t])) as Record<TopicKey, Topic>;
 export const isTopic = (v: unknown): v is TopicKey => typeof v === "string" && v in TOPIC;
-export const topicOf = (v: unknown): TopicKey => (isTopic(v) ? v : "unsorted");
+
+/* ---------- your own shelves ---------- */
+
+/** A shelf the reader made themselves. Its key is stable; only the name changes on a rename. */
+export type CustomShelf = { key: string; name: string; createdAt?: number };
+
+export const CUSTOM_PREFIX = "custom-";
+export const isCustomKey = (v: unknown): v is string => typeof v === "string" && v.startsWith(CUSTOM_PREFIX) && v.length > CUSTOM_PREFIX.length;
+
+/** A stable key for a new shelf, from its name: `custom-reading-list`, then `-2`, `-3` on a clash. */
+export function customKeyFor(name: string, existing: Iterable<string> = []): string {
+  const slug =
+    name
+      .toLowerCase()
+      .normalize("NFKD")
+      .replace(/[^\w\s-]/g, "")
+      .trim()
+      .replace(/\s+/g, "-")
+      .slice(0, 40) || "shelf";
+  const taken = new Set(existing);
+  let key = `${CUSTOM_PREFIX}${slug}`;
+  for (let n = 2; taken.has(key); n++) key = `${CUSTOM_PREFIX}${slug}-${n}`;
+  return key;
+}
+
+/** The name a custom key carries on its own, for a device that has not seen the shelf made. */
+export function shelfNameFromKey(key: string): string {
+  const words = key.slice(CUSTOM_PREFIX.length).replace(/-\d+$/, "").split("-").filter(Boolean);
+  return words.map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ") || "My shelf";
+}
+
+const CUSTOM_PALETTES: [string, string, string, string][] = [
+  ["#7a3b5e", "#9a5a7f", "#552741", "#c99ab2"],
+  ["#2f6f6a", "#4f8f89", "#1f4d4a", "#9cc4bf"],
+  ["#8a6d2f", "#aa8f4f", "#5f4c1f", "#d6c08a"],
+  ["#4a5d8a", "#6a7daa", "#323f5f", "#a3b0d0"],
+  ["#8a4a2f", "#aa6a4a", "#5f331e", "#d0a389"],
+  ["#3f6d4a", "#5f8d63", "#2a4b32", "#a3c49e"],
+  ["#6d3f7a", "#8d5f97", "#4b2a55", "#bfa3c9"],
+  ["#7a5a3b", "#99805e", "#553e28", "#c9b69a"],
+  ["#2f5d7a", "#4f7d9a", "#1f4055", "#9ab8c9"],
+  ["#7a2f3b", "#9a4f5a", "#551f27", "#c99aa1"],
+];
+
+/** Cloth for any shelf: a built-in topic's own, or one picked by hash for a custom shelf. */
+export function shadesFor(key: string): [string, string, string, string] {
+  if (isTopic(key)) return TOPIC[key].shades;
+  return CUSTOM_PALETTES[hash(key) % CUSTOM_PALETTES.length];
+}
+
+export type ShelfDef = Topic & { custom?: boolean };
+
+/** Any shelf as the library draws it: a built-in topic, a custom shelf, or Unsorted. */
+export function shelfDef(key: string, customs: CustomShelf[] = []): ShelfDef {
+  if (isTopic(key)) return TOPIC[key];
+  if (isCustomKey(key)) {
+    const found = customs.find((c) => c.key === key);
+    const name = found?.name || shelfNameFromKey(key);
+    return { key: key as TopicKey, name, shades: shadesFor(key), blurb: "Your own shelf.", hint: "", inks: "deep colour and soft colour", custom: true };
+  }
+  return TOPIC.unsorted;
+}
+
+/** Every shelf, in order: the built-in topics, then your own, then Unsorted. */
+export function allShelves(customs: CustomShelf[] = []): ShelfDef[] {
+  return [...TOPICS.filter((t) => t.key !== "unsorted"), ...customs.map((c) => shelfDef(c.key, customs)), TOPIC.unsorted];
+}
+
+/** A shelved value kept as it is when it names a real shelf (built-in or your own), else Unsorted. */
+export const topicOf = (v: unknown, customs: CustomShelf[] = []): string =>
+  isTopic(v) || isCustomKey(v) ? (v as string) : customs.some((c) => c.key === v) ? (v as string) : "unsorted";
 
 /** One text as the shelves see it: the shelf entry, with your reading laid over it. */
 export type Book = {
@@ -86,7 +156,10 @@ export type Book = {
   author: string;
   year?: number;
   url?: string;
-  topic: TopicKey;
+  /** A built-in topic key, or a custom shelf key (`custom-…`). */
+  topic: string;
+  /** The shelf's display name, when the reader's own shelves gave it one. */
+  topicName?: string;
   minutes: number;
   dek?: string;
   tags: string[];
@@ -104,6 +177,8 @@ export type Book = {
   agent: boolean;
   /** A bundled sample: always there, cannot be removed. */
   sample: boolean;
+  /** Saved as a link to look at later, because the page had too little text to read here. */
+  bookmark?: boolean;
 };
 
 /* ---------- looks ---------- */
@@ -171,7 +246,7 @@ export function lookOf(b: Pick<Book, "id" | "topic" | "minutes">): Look {
   const hit = looks.get(key);
   if (hit) return hit;
   const r = rng(hash(b.id));
-  const shades = TOPIC[b.topic].shades;
+  const shades = shadesFor(b.topic);
   // Mostly the base and deep cloths; the light and pale ones now and then, for rhythm.
   const pick = r();
   const color = shades[pick < 0.38 ? 0 : pick < 0.7 ? 2 : pick < 0.88 ? 1 : 3];
@@ -191,8 +266,10 @@ export function lookOf(b: Pick<Book, "id" | "topic" | "minutes">): Look {
 
 /* ---------- pictures ---------- */
 
-export const topicArtSrc = (k: TopicKey) => `/library/topics/${k}.webp`;
-export const iconSrc = (k: TopicKey | TagKey) => `/library/icons/${k}.webp`;
+export const topicArtSrc = (k: string) => `/library/topics/${k}.webp`;
+export const iconSrc = (k: string) => `/library/icons/${k}.webp`;
+/** Whether a bundled clay icon exists for this key (built-in topics and tags; custom shelves draw their initial instead). */
+export const hasIcon = (k: string) => isTopic(k) || ["favorite", "reading", "finished", "quick", "long", "agent"].includes(k);
 
 /* ---------- shelving ---------- */
 
@@ -205,11 +282,13 @@ export const SORTS: { key: Sort; label: string }[] = [
   { key: "length", label: "Length" },
 ];
 
-const TOPIC_ORDER = Object.fromEntries(TOPICS.map((t, i) => [t.key, i])) as Record<TopicKey, number>;
+const TOPIC_ORDER = Object.fromEntries(TOPICS.map((t, i) => [t.key, i])) as Record<string, number>;
+/** Built-ins in their order, then your own shelves by name, then Unsorted last. */
+const shelfOrder = (key: string) => (key === "unsorted" ? 999 : isTopic(key) ? TOPIC_ORDER[key] : 500);
 
 export function sortBooks(books: Book[], sort: Sort): Book[] {
   const by = [...books];
-  if (sort === "topic") by.sort((a, b) => TOPIC_ORDER[a.topic] - TOPIC_ORDER[b.topic] || a.added - b.added);
+  if (sort === "topic") by.sort((a, b) => shelfOrder(a.topic) - shelfOrder(b.topic) || (a.topicName ?? a.topic).localeCompare(b.topicName ?? b.topic) || a.added - b.added);
   if (sort === "recent") by.sort((a, b) => b.added - a.added);
   if (sort === "color") by.sort((a, b) => lookOf(a).hue - lookOf(b).hue || lookOf(a).h - lookOf(b).h);
   if (sort === "length") by.sort((a, b) => a.minutes - b.minutes);
@@ -217,8 +296,8 @@ export function sortBooks(books: Book[], sort: Sort): Book[] {
 }
 
 /** The label on the shelf under the first book of each run: a topic, a month or a length. */
-export function groupOf(b: Book, sort: Sort): { key: string; label: string; icon?: TopicKey | TagKey } | null {
-  if (sort === "topic") return { key: b.topic, label: TOPIC[b.topic].name, icon: b.topic };
+export function groupOf(b: Book, sort: Sort, customs: CustomShelf[] = []): { key: string; label: string; icon?: string } | null {
+  if (sort === "topic") return { key: b.topic, label: b.topicName ?? shelfDef(b.topic, customs).name, icon: b.topic };
   if (sort === "recent") {
     const label = new Date(b.added).toLocaleDateString("en-GB", { month: "long", year: "numeric" });
     return { key: label, label };
@@ -265,12 +344,12 @@ export function yearOf(published?: string): number | undefined {
 
 /* ---------- what the classifier returns ---------- */
 
-export type Shelving = { topic: TopicKey; tags: string[]; scene?: string };
+export type Shelving = { topic: string; tags: string[]; scene?: string };
 
 /** Tags: a few short lowercase words, never the topic's own name. */
-export function cleanTags(v: unknown, topic: TopicKey): string[] {
+export function cleanTags(v: unknown, topic: string): string[] {
   if (!Array.isArray(v)) return [];
-  const name = TOPIC[topic].name.toLowerCase();
+  const name = shelfDef(topic).name.toLowerCase();
   const out: string[] = [];
   for (const t of v) {
     if (typeof t !== "string") continue;

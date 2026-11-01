@@ -512,7 +512,7 @@ function ReaderInner({ article }: { article: Article }) {
                       {article.published && <span className="text-ink-3">{`  \u00b7  ${article.published}`}</span>}
                     </p>
                     <p className="mt-1 text-[13px] leading-snug text-ink-3">
-                      {readingMinutes(ix.words)} min read <span className="text-ink-4">{"\u00b7"}</span> {paraCount} paragraphs
+                      {article.bookmark ? "Saved link · too little text to read here" : `${readingMinutes(ix.words)} min read · ${paraCount} paragraphs`}
                     </p>
                   </div>
                   {article.sourceUrl && (
@@ -526,10 +526,24 @@ function ReaderInner({ article }: { article: Article }) {
                     </a>
                   )}
                 </div>
-                <CarefulRead article={article} />
-                <div className="focus-hide rise" style={{ animationDelay: "200ms" }}>
-                  <Brief />
-                </div>
+                {article.bookmark ? (
+                  <div className="focus-hide rise mt-6 rounded-[14px] border border-rule bg-bg-raised p-4 text-[14px] leading-relaxed text-ink-2" style={{ animationDelay: "180ms" }} role="note">
+                    <p className="font-medium text-ink">Saved as a link</p>
+                    <p className="mt-1">This page has too little text to read as an article in Gloss, so it was kept as a link to look at later. Open the original page to see it in full.</p>
+                    {article.sourceUrl && (
+                      <a href={article.sourceUrl} target="_blank" rel="noopener noreferrer" className="mt-3 inline-flex h-9 items-center gap-1.5 rounded-full bg-ink px-4 text-[13px] font-medium text-bg">
+                        Open the original page <ArrowUpRight size={14} />
+                      </a>
+                    )}
+                  </div>
+                ) : (
+                  <>
+                    <CarefulRead article={article} />
+                    <div className="focus-hide rise" style={{ animationDelay: "200ms" }}>
+                      <Brief />
+                    </div>
+                  </>
+                )}
               </header>
 
               <div ref={setArticleEl} className="prose-read" onClick={onTextClick} onMouseOver={onTextOver} onMouseLeave={() => setUI({ hoverGloss: null })}>
