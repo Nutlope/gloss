@@ -16,6 +16,7 @@
     "@neondatabase/serverless": "^1.2.0",
     "linkedom": "^0.18.13",
     "lucide-react": "^1.53.0",
+    "mermaid": "^11.17.2",
     "next": "^16.4.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",

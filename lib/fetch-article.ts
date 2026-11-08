@@ -104,6 +104,26 @@ function revealStreamed(doc: Document) {
   }
 }
 
+/**
+ * HTML lets a table leave its end tags out (`<th>Owns<tbody><tr>…`), and the
+ * browser closes the cell for it. linkedom's parser doesn't, so the body lands
+ * inside the last header cell and the table reads as one row. Each section and
+ * row stuck in the wrong place moves up, after the branch it was in and after
+ * anything already moved out of that branch, so it keeps its order.
+ */
+function repairTables(doc: Document) {
+  const SECTION = /^(THEAD|TBODY|TFOOT)$/;
+  const last = new Map<Element, Element>();
+  for (const el of Array.from(doc.querySelectorAll("thead, tbody, tfoot, tr"))) {
+    const holds = (p: Element) => p.tagName === "TABLE" || (el.tagName === "TR" && SECTION.test(p.tagName));
+    let branch = el.parentElement;
+    if (!branch || holds(branch)) continue;
+    while (branch.parentElement && !holds(branch.parentElement)) branch = branch.parentElement;
+    branch.parentElement?.insertBefore(el, (last.get(branch) ?? branch).nextSibling);
+    last.set(branch, el);
+  }
+}
+
 const SOCIAL = /^(x\.com|twitter\.com|mobile\.twitter\.com|threads\.net|bsky\.app|instagram\.com|facebook\.com|linkedin\.com\/posts)/;
 const VIDEO = /^(youtube\.com|m\.youtube\.com|music\.youtube\.com|youtu\.be|vimeo\.com|tiktok\.com)\//;
 
@@ -213,6 +233,11 @@ export async function fetchArticle(raw: string, opts: { pdf?: boolean } = {}): P
   // Pages streamed by React arrive with their content hidden, to be swapped in by a script.
   try {
     revealStreamed(document as unknown as Document);
+  } catch {}
+
+  // Tables written without their optional end tags, put back the way a browser reads them.
+  try {
+    repairTables(document as unknown as Document);
   } catch {}
 
   // Data tables (header cells or a caption) often carry classes like "sticky-header"

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, type ReactNode } from "react";
+import { memo, useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import { MessageCirclePlus } from "lucide-react";
 import type { Block as BlockT, Run } from "@/lib/article";
 
@@ -168,6 +168,81 @@ function Table({ rows, head }: { rows: string[][]; head?: boolean }) {
   );
 }
 
+/**
+ * A code block that is a Mermaid diagram: the source pages draw these in the browser, so Gloss does too.
+ * Only the text's first line counts (after front matter and %% comments), and it must be a diagram's
+ * header line and nothing more, so code that merely mentions `pie` or `timeline` never loads Mermaid.
+ */
+const MERMAID =
+  /^\s*(?:---\n[\s\S]*?\n---\s*\n)?(?:%%.*\n\s*)*(?:(?:flowchart|graph)(?:[ \t]+(?:TB|TD|BT|RL|LR))?|pie(?:[ \t]+showData)?(?:[ \t]+title[ \t].*)?|gitGraph(?:[ \t]+(?:TB|BT|LR):?)?|xychart-beta(?:[ \t]+horizontal)?|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|gantt|quadrantChart|requirementDiagram|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment|mindmap|timeline|sankey-beta|block-beta|packet-beta|architecture-beta|kanban)[ \t]*;?[ \t]*(?:\n|$)/;
+let diagrams = 0;
+
+/**
+ * Draws the diagram in the page's own ink and paper, again whenever the theme
+ * changes. Until it is drawn, or if Mermaid can't read it, the source shows as code.
+ * A wide diagram shrinks to the column only while its labels stay readable, then scrolls.
+ */
+function Diagram({ source, children }: { source: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [svg, setSvg] = useState<string | null>(null);
+  const [theme, setTheme] = useState<string | undefined>();
+
+  useEffect(() => {
+    const el = document.documentElement;
+    setTheme(el.dataset.theme);
+    const watch = new MutationObserver(() => setTheme(el.dataset.theme));
+    watch.observe(el, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => watch.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!theme || !ref.current) return;
+    let live = true;
+    const css = getComputedStyle(ref.current);
+    const v = (name: string) => css.getPropertyValue(name).trim();
+    void (async () => {
+      // Loaded on demand: Mermaid is large, and only texts that hold a diagram need it.
+      const { default: mermaid } = await import("mermaid");
+      mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: "base",
+        fontFamily: css.fontFamily,
+        themeVariables: {
+          darkMode: theme === "night" || theme === "ink",
+          fontFamily: css.fontFamily,
+          fontSize: "14px",
+          background: v("--bg-sunk"),
+          primaryColor: v("--bg-raised"),
+          primaryTextColor: v("--ink"),
+          primaryBorderColor: v("--rule-strong"),
+          secondaryColor: v("--bg"),
+          tertiaryColor: v("--bg"),
+          lineColor: v("--ink-3"),
+          textColor: v("--ink-2"),
+          clusterBkg: v("--bg"),
+          clusterBorder: v("--rule-strong"),
+          edgeLabelBackground: v("--bg-sunk"),
+        },
+      });
+      if (!(await mermaid.parse(source, { suppressErrors: true }))) return;
+      const out = await mermaid.render(`mmd-${++diagrams}`, source);
+      if (live) setSvg(out.svg);
+    })().catch(() => live && setSvg(null));
+    return () => {
+      live = false;
+    };
+  }, [source, theme]);
+
+  // The drawing's own width, which the stylesheet uses to set how far it may shrink.
+  const width = svg ? Number(/viewBox="[-\d.]+ [-\d.]+ ([\d.]+)/.exec(svg)?.[1]) : 0;
+  return (
+    <div ref={ref} className={svg ? "diagram scroll-thin" : undefined} style={width ? ({ "--diagram-w": `${width}px` } as CSSProperties) : undefined}>
+      {svg ? <div role="img" aria-label="Diagram" dangerouslySetInnerHTML={{ __html: svg }} /> : children}
+    </div>
+  );
+}
+
 function BlockImpl({ block, n, first, marks, activeGloss, hoverGloss, activeHighlight, fresh, cursor, hasAt, onAsk }: Props) {
   const Tag = block.type === "h2" ? "h2" : block.type === "h3" ? "h3" : block.type === "figure" ? "figure" : "div";
   const content = segments(block, marks, activeGloss, hoverGloss, activeHighlight, fresh);
@@ -199,6 +274,10 @@ function BlockImpl({ block, n, first, marks, activeGloss, hoverGloss, activeHigh
         <Table rows={block.rows} head={block.head} />
       ) : block.type === "figure" ? (
         block.runs.length > 0 && <figcaption className="blk-text">{content}</figcaption>
+      ) : block.type === "pre" && MERMAID.test(block.runs[0]?.text ?? "") ? (
+        <Diagram source={block.runs[0].text}>
+          <span className="blk-text">{content}</span>
+        </Diagram>
       ) : (
         <span className="blk-text">{content}</span>
       )}

@@ -467,6 +467,23 @@ kbd,
   border-radius: 8px;
 }
 
+/* A Mermaid diagram drawn from a code block, on the same sunk panel. It fits the column
+   (never past its own size) unless that would shrink its labels below three quarters,
+   and then scrolls sideways instead. */
+.prose-read .diagram {
+  overflow-x: auto;
+  white-space: normal;
+  overscroll-behavior-x: contain;
+}
+
+.prose-read .diagram svg {
+  display: block;
+  width: 100%;
+  min-width: calc(var(--diagram-w, 0px) * 0.75);
+  height: auto;
+  margin: 0 auto;
+}
+
 .prose-read .blk[data-type="note"] {
   font-size: 0.82em;
   line-height: 1.55;
