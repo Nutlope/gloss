@@ -108,16 +108,19 @@ function revealStreamed(doc: Document) {
  * HTML lets a table leave its end tags out (`<th>Owns<tbody><tr>…`), and the
  * browser closes the cell for it. linkedom's parser doesn't, so the body lands
  * inside the last header cell and the table reads as one row. Each section and
- * row stuck in the wrong place moves up, just after the branch it was in.
+ * row stuck in the wrong place moves up, after the branch it was in and after
+ * anything already moved out of that branch, so it keeps its order.
  */
 function repairTables(doc: Document) {
   const SECTION = /^(THEAD|TBODY|TFOOT)$/;
+  const last = new Map<Element, Element>();
   for (const el of Array.from(doc.querySelectorAll("thead, tbody, tfoot, tr"))) {
     const holds = (p: Element) => p.tagName === "TABLE" || (el.tagName === "TR" && SECTION.test(p.tagName));
     let branch = el.parentElement;
     if (!branch || holds(branch)) continue;
     while (branch.parentElement && !holds(branch.parentElement)) branch = branch.parentElement;
-    branch.parentElement?.insertBefore(el, branch.nextSibling);
+    branch.parentElement?.insertBefore(el, (last.get(branch) ?? branch).nextSibling);
+    last.set(branch, el);
   }
 }
 

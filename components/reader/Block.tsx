@@ -168,9 +168,13 @@ function Table({ rows, head }: { rows: string[][]; head?: boolean }) {
   );
 }
 
-/** A code block that is a Mermaid diagram: the source pages draw these in the browser, so Gloss does too. */
+/**
+ * A code block that is a Mermaid diagram: the source pages draw these in the browser, so Gloss does too.
+ * Only the text's first line counts (after front matter and %% comments), and it must be a diagram's
+ * header line and nothing more, so code that merely mentions `pie` or `timeline` never loads Mermaid.
+ */
 const MERMAID =
-  /^\s*(?:---\n[\s\S]*?\n---\s*\n)?(?:%%.*\n\s*)*(?:(?:flowchart|graph)(?:[ \t]+(?:TB|TD|BT|RL|LR))?[ \t]*$|(?:sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|gantt|pie|quadrantChart|requirementDiagram|gitGraph|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment|mindmap|timeline|sankey-beta|xychart-beta|block-beta|packet-beta|architecture-beta|kanban)\b)/m;
+  /^\s*(?:---\n[\s\S]*?\n---\s*\n)?(?:%%.*\n\s*)*(?:(?:flowchart|graph)(?:[ \t]+(?:TB|TD|BT|RL|LR))?|pie(?:[ \t]+showData)?(?:[ \t]+title[ \t].*)?|gitGraph(?:[ \t]+(?:TB|BT|LR):?)?|xychart-beta(?:[ \t]+horizontal)?|sequenceDiagram|classDiagram|stateDiagram(?:-v2)?|erDiagram|journey|gantt|quadrantChart|requirementDiagram|C4Context|C4Container|C4Component|C4Dynamic|C4Deployment|mindmap|timeline|sankey-beta|block-beta|packet-beta|architecture-beta|kanban)[ \t]*;?[ \t]*(?:\n|$)/;
 let diagrams = 0;
 
 /**
